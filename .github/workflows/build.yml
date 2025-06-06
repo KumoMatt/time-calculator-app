@@ -44,7 +44,8 @@ jobs:
       # Assicurati che gradlew sia eseguibile e poi invoca il task di build.
       # Il percorso è relativo alla 'working-directory: TimeCalculatorApp'.
       run: |
-        chmod +x ./platforms/android/gradlew # Aggiunto per rendere gradlew eseguibile
+        ls -l ./platforms/android/ # DEBUG: Aggiunto per listare il contenuto della cartella 'android'
+        chmod +x ./platforms/android/gradlew
         ./platforms/android/gradlew assembleRelease
 
     - name: Upload APK
