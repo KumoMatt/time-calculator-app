@@ -29,7 +29,8 @@ jobs:
     - name: Setup Java JDK
       uses: actions/setup-java@v4
       with:
-        java-version: '11'
+        # CORREZIONE: Aggiornato da Java 11 a Java 17, come richiesto dallo sdkmanager
+        java-version: '17' 
         distribution: 'temurin'
      
     - name: Setup Android SDK
