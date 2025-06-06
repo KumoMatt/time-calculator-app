@@ -37,25 +37,32 @@ jobs:
         npm install -g cordova@latest
         npm install
 
+    - name: Remove existing Android Platform (for clean setup)
+      # Questo step rimuove la piattaforma Android se esiste, per garantire un'installazione pulita
+      # '|| true' impedisce al workflow di fallire se la piattaforma non è già presente
+      run: cordova platform rm android --no-save || true
+
     - name: Add Android Platform
+      # Aggiunge la piattaforma Android, che dovrebbe generare i file Gradle wrapper
       run: cordova platform add android
 
     - name: Prepare Android Project
-      # Questo step dovrebbe generare il wrapper Gradle (gradlew)
+      # Questo step finalizza la preparazione del progetto dopo l'aggiunta della piattaforma
       run: cordova prepare android
 
     - name: Make gradlew executable and Build Android APK
-      # Assicurati che gradlew sia eseguibile e poi invoca il task di build.
-      # Il percorso è relativo alla 'working-directory: TimeCalculatorApp'.
+      # DEBUG: Aggiunto per listare il contenuto della cartella 'android' prima di usare gradlew
+      # Questo ci aiuterà a verificare se gradlew è stato finalmente creato
       run: |
-        ls -l ./platforms/android/ # DEBUG: Aggiunto per listare il contenuto della cartella 'android'
+        ls -l ./platforms/android/ 
+        # Rende lo script Gradle wrapper eseguibile
         chmod +x ./platforms/android/gradlew
+        # Avvia la build dell'APK utilizzando il wrapper Gradle
         ./platforms/android/gradlew assembleRelease
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: android-apk
-        # Il percorso dell'APK è relativo alla working-directory impostata (TimeCalculatorApp),
-        # quindi 'platforms/android/...' è corretto se Cordova ha creato le sue sottocartelle lì.
+        # Il percorso dell'APK è relativo alla working-directory impostata (TimeCalculatorApp)
         path: platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
