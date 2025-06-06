@@ -40,6 +40,10 @@ jobs:
     - name: Add Android Platform
       run: cordova platform add android
 
+    - name: Prepare Android Project
+      # Questo step dovrebbe generare il wrapper Gradle (gradlew)
+      run: cordova prepare android
+
     - name: Make gradlew executable and Build Android APK
       # Assicurati che gradlew sia eseguibile e poi invoca il task di build.
       # Il percorso è relativo alla 'working-directory: TimeCalculatorApp'.
