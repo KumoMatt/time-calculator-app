@@ -39,12 +39,11 @@ jobs:
 
     - name: Remove existing Android Platform (for clean setup)
       # Questo step rimuove la piattaforma Android se esiste, per garantire un'installazione pulita
-      # '|| true' impedisce al workflow di fallire se la piattaforma non è già presente
       run: cordova platform rm android --no-save || true
 
-    - name: Add Android Platform
-      # Aggiunge la piattaforma Android, che dovrebbe generare i file Gradle wrapper
-      run: cordova platform add android
+    - name: Add Android Platform (Specific Version)
+      # Aggiunge la piattaforma Android specificando una versione stabile per garantire la generazione di gradlew
+      run: cordova platform add android@11.0.0 # Modificato per usare una versione specifica
 
     - name: Prepare Android Project
       # Questo step finalizza la preparazione del progetto dopo l'aggiunta della piattaforma
@@ -52,8 +51,8 @@ jobs:
 
     - name: Make gradlew executable and Build Android APK
       # DEBUG: Aggiunto per listare il contenuto della cartella 'android' prima di usare gradlew
-      # Questo ci aiuterà a verificare se gradlew è stato finalmente creato
       run: |
+        echo "Contents of platforms/android/ after platform add and prepare:"
         ls -l ./platforms/android/ 
         # Rende lo script Gradle wrapper eseguibile
         chmod +x ./platforms/android/gradlew
