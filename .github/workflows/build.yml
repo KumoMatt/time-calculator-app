@@ -9,7 +9,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
+    defaults:
+      run:
+        working-directory: ./time-calculator-app
+        
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
