@@ -41,16 +41,20 @@ jobs:
       run: cordova platform add android
 
     - name: Build Android APK
-      # Utilizza direttamente gradlew per assicurarti che venga chiamato il task corretto (assembleRelease per APK)
+      # Utilizza direttamente gradlew dal working directory principale
+      # per assicurarti che venga chiamato il task corretto (assembleRelease per APK).
+      # Il percorso è relativo alla 'working-directory: TimeCalculatorApp' definita sopra.
       run: |
-        cd platforms/android
-        ./gradlew assembleRelease # Modificato da 'cordova build android --release'
-      # La working-directory rimane TimeCalculatorApp, ma il comando 'cd platforms/android' sposta nella sottocartella Gradle
+        ./platforms/android/gradlew assembleRelease
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: android-apk
+        # Il percorso dell'APK è relativo alla working-directory impostata (TimeCalculatorApp),
+        # quindi 'platforms/android/...' è corretto se Cordova ha creato le sue sottocartelle lì.
+        path: platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
+
         # Il percorso dell'APK è relativo alla working-directory impostata (TimeCalculatorApp),
         # quindi 'platforms/android/...' è corretto se Cordova ha creato le sue sottocartelle lì.
         path: platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
