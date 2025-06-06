@@ -41,10 +41,13 @@ jobs:
       # Rimuove le cartelle platforms e plugins per garantire una reinstallazione pulita
       run: rm -rf platforms plugins || true
 
-    - name: Add Android Platform (Specific Stable Version)
-      # Aggiunge la piattaforma Android specificando una versione stabile (10.1.2)
-      # che è nota per generare correttamente il wrapper Gradle.
-      run: cordova platform add android@10.1.2
+    - name: Add Android Platform
+      # Aggiunge la piattaforma Android; la versione sarà dettata da package.json
+      run: cordova platform add android
+
+    - name: Prepare Android Project
+      # Questo step finalizza la preparazione del progetto dopo l'aggiunta della piattaforma
+      run: cordova prepare android
 
     - name: Build Android APK
       # Utilizza il comando standard di Cordova per la build
