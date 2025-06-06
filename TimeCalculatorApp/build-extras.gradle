@@ -1,0 +1,18 @@
+configurations.all {
+    resolutionStrategy {
+        // Itera su tutte le dipendenze
+        eachDependency { details ->
+            // Se la dipendenza appartiene al gruppo Kotlin
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                // E il nome della dipendenza è una delle librerie standard di Kotlin
+                if (details.requested.name == 'kotlin-stdlib' ||
+                    details.requested.name == 'kotlin-stdlib-jdk7' ||
+                    details.requested.name == 'kotlin-stdlib-jdk8') {
+                    // Forza la versione a 1.8.22, che sembra essere presente nel log
+                    // e dovrebbe essere compatibile con le altre dipendenze.
+                    details.useVersion '1.8.22'
+                }
+            }
+        }
+    }
+}
