@@ -4,13 +4,24 @@
   "description": "Calcolatrice orari con notifiche",
   "main": "index.html",
   "scripts": {
-    "build": "cordova build android"
+    "build": "cordova build android",
+    "build-release": "cordova build android --release",
+    "serve": "cordova serve",
+    "clean": "cordova clean android",
+    "prepare": "cordova prepare android"
   },
   "dependencies": {
     "cordova": "^12.0.0",
-    "cordova-android": "^12.0.0",
+    "cordova-android": "^12.0.1",
     "cordova-plugin-local-notification": "^0.9.0",
-    "cordova-plugin-whitelist": "^1.3.4"
+    "cordova-plugin-whitelist": "^1.3.5"
+  },
+  "devDependencies": {
+    "@cordova/cli": "^12.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
   },
   "cordova": {
     "plugins": {
@@ -20,5 +31,13 @@
     "platforms": [
       "android"
     ]
-  }
+  },
+  "keywords": [
+    "cordova",
+    "android",
+    "time-calculator",
+    "notifications"
+  ],
+  "author": "KumoMatt",
+  "license": "MIT"
 }
