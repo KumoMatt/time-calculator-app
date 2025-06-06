@@ -1,21 +1,22 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.timecalculator.app" version="1.0.0" 
-        xmlns="http://www.w3.org/ns/widgets" 
-        xmlns:gap="http://phonegap.com/ns/1.0">
-    
+<widget id="com.timecalculator.app" version="1.0.0"  
+        xmlns="http://www.w3.org/ns/widgets"  
+        xmlns:gap="http://phonegap.com/ns/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"> <!-- Importante: questo risolve l'errore 'AttributePrefixUnbound' -->
+     
     <name>Calcolatrice Orari</name>
     <description>App per calcolare gli orari delle attività con notifiche</description>
     <author email="kumokumomatt@gmail.com">KumoMatt</author>
-    
+     
     <content src="index.html" />
     <access origin="*" />
-    
+     
     <!-- Preferenze generali -->
     <preference name="orientation" value="portrait" />
     <preference name="fullscreen" value="false" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="BackgroundColor" value="0xff667eea" />
-    
+     
     <!-- Preferenze Android -->
     <preference name="android-minSdkVersion" value="22" />
     <preference name="android-targetSdkVersion" value="33" />
@@ -23,22 +24,23 @@
     <preference name="android-buildToolsVersion" value="33.0.2" />
     <preference name="GradlePluginVersion" value="7.4.2" />
     <preference name="AndroidGradlePluginVersion" value="7.4.2" />
-    
+     
     <!-- Plugin per Notifiche -->
-    <plugin name="cordova-plugin-local-notification" spec="~0.9.0" />
-    <plugin name="cordova-plugin-whitelist" spec="~1.3.4" />
-    
+    <!-- Aggiornate le versioni per coerenza con package.json -->
+    <plugin name="cordova-plugin-local-notification" spec="^1.1.0" />
+    <plugin name="cordova-plugin-whitelist" spec="^1.3.5" />
+     
     <!-- Permessi Android -->
     <platform name="android">
         <allow-intent href="market:*" />
         <preference name="android-windowSoftInputMode" value="adjustResize" />
-        
+         
         <!-- Permessi per notifiche -->
         <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
         <uses-permission android:name="android.permission.WAKE_LOCK" />
         <uses-permission android:name="android.permission.VIBRATE" />
         <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-        
+         
         <!-- Icone -->
         <icon density="ldpi" src="res/android/ldpi.png" />
         <icon density="mdpi" src="res/android/mdpi.png" />
@@ -46,8 +48,8 @@
         <icon density="xhdpi" src="res/android/xhdpi.png" />
         <icon density="xxhdpi" src="res/android/xxhdpi.png" />
         <icon density="xxxhdpi" src="res/android/xxxhdpi.png" />
-        
-        <!-- Splash screens -->
+         
+        <!-- Splash screens (Nota: i tag <splash> sono deprecati in Cordova più recenti) -->
         <splash density="land-ldpi" src="res/android/splash-land-ldpi.png" />
         <splash density="land-mdpi" src="res/android/splash-land-mdpi.png" />
         <splash density="land-hdpi" src="res/android/splash-land-hdpi.png" />
@@ -57,9 +59,9 @@
         <splash density="port-hdpi" src="res/android/splash-port-hdpi.png" />
         <splash density="port-xhdpi" src="res/android/splash-port-xhdpi.png" />
     </platform>
-    
+     
     <!-- CSP Policy -->
-    <meta http-equiv="Content-Security-Policy" 
+    <meta http-equiv="Content-Security-Policy"  
           content="default-src 'self' data: https: 'unsafe-inline' 'unsafe-eval';" />
-    
+     
 </widget>
