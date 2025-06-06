@@ -11,12 +11,9 @@ jobs:
     runs-on: ubuntu-latest
      
     # Imposta la working-directory predefinita per tutti gli step 'run'
-    # Il repository viene clonato in /home/runner/work/<repo_name>/<repo_name>
-    # Se i tuoi file sono in una sottocartella 'TimeCalculatorApp' all'interno della root del repository,
-    # allora il percorso relativo sarà semplicemente 'TimeCalculatorApp'.
     defaults:
       run:
-        working-directory: TimeCalculatorApp # CORREZIONE: Punti direttamente alla sottocartella del progetto
+        working-directory: TimeCalculatorApp
 
     steps:
     - uses: actions/checkout@v4
@@ -29,7 +26,6 @@ jobs:
     - name: Setup Java JDK
       uses: actions/setup-java@v4
       with:
-        # CORREZIONE: Aggiornato da Java 11 a Java 17, come richiesto dallo sdkmanager
         java-version: '17' 
         distribution: 'temurin'
      
@@ -37,7 +33,6 @@ jobs:
       uses: android-actions/setup-android@v3
      
     - name: Install Cordova and dependencies
-      # Questo e i successivi comandi 'run' useranno la working-directory definita in 'defaults'
       run: |
         npm install -g cordova@latest
         npm install
@@ -46,12 +41,16 @@ jobs:
       run: cordova platform add android
 
     - name: Build Android APK
-      run: cordova build android --release
+      # Utilizza direttamente gradlew per assicurarti che venga chiamato il task corretto (assembleRelease per APK)
+      run: |
+        cd platforms/android
+        ./gradlew assembleRelease # Modificato da 'cordova build android --release'
+      # La working-directory rimane TimeCalculatorApp, ma il comando 'cd platforms/android' sposta nella sottocartella Gradle
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: android-apk
-        path: platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
         # Il percorso dell'APK è relativo alla working-directory impostata (TimeCalculatorApp),
         # quindi 'platforms/android/...' è corretto se Cordova ha creato le sue sottocartelle lì.
+        path: platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
