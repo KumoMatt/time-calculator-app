@@ -54,7 +54,3 @@ jobs:
         # Il percorso dell'APK è relativo alla working-directory impostata (TimeCalculatorApp),
         # quindi 'platforms/android/...' è corretto se Cordova ha creato le sue sottocartelle lì.
         path: platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
-
-        # Il percorso dell'APK è relativo alla working-directory impostata (TimeCalculatorApp),
-        # quindi 'platforms/android/...' è corretto se Cordova ha creato le sue sottocartelle lì.
-        path: platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
