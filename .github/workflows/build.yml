@@ -40,11 +40,11 @@ jobs:
     - name: Add Android Platform
       run: cordova platform add android
 
-    - name: Build Android APK
-      # Utilizza direttamente gradlew dal working directory principale
-      # per assicurarti che venga chiamato il task corretto (assembleRelease per APK).
-      # Il percorso è relativo alla 'working-directory: TimeCalculatorApp' definita sopra.
+    - name: Make gradlew executable and Build Android APK
+      # Assicurati che gradlew sia eseguibile e poi invoca il task di build.
+      # Il percorso è relativo alla 'working-directory: TimeCalculatorApp'.
       run: |
+        chmod +x ./platforms/android/gradlew # Aggiunto per rendere gradlew eseguibile
         ./platforms/android/gradlew assembleRelease
 
     - name: Upload APK
