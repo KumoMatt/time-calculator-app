@@ -17,13 +17,15 @@
     <preference name="DisallowOverscroll" value="true" />
     <preference name="BackgroundColor" value="0xff667eea" />
      
-    <!-- Preferenze Android -->
+    <!-- Preferenze Android (minSdkVersion e targetSdkVersion sono spesso necessarie, ma rimuoviamo le altre versioni esplicite per compatibilità con cordova-android@11.0.0) -->
     <preference name="android-minSdkVersion" value="22" />
-    <preference name="android-targetSdkVersion" value="33" />
+    <preference name="android-targetSdkVersion" value="31" /> <!-- Cambiato da 33 a 31 per compatibilità con cordova-android@11.0.0 -->
+    <!-- Rimosse per evitare conflitti con cordova-android@11.0.0:
     <preference name="android-compileSdkVersion" value="33" />
     <preference name="android-buildToolsVersion" value="33.0.2" />
     <preference name="GradlePluginVersion" value="7.4.2" />
     <preference name="AndroidGradlePluginVersion" value="7.4.2" />
+    -->
      
     <!-- Plugin per Notifiche -->
     <plugin name="cordova-plugin-local-notification" spec="^1.1.0" />
@@ -57,9 +59,6 @@
         <splash density="port-mdpi" src="res/android/splash-port-mdpi.png" />
         <splash density="port-hdpi" src="res/android/splash-port-hdpi.png" />
         <splash density="port-xhdpi" src="res/android/splash-port-xhdpi.png" />
-
-        <!-- Rimosso temporaneamente per debug del problema 'gradlew missing' -->
-        <!-- <resource-file src="build-extras.gradle" target="app/build.gradle" parent="/*:root"/> -->
     </platform>
      
     <!-- CSP Policy -->
