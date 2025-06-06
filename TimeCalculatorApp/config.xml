@@ -19,10 +19,12 @@
      
     <!-- Preferenze Android -->
     <preference name="android-minSdkVersion" value="22" />
-    <preference name="android-targetSdkVersion" value="30" />
-    <!-- Aggiunte preferenze per la versione di Gradle Wrapper per garantire compatibilità con Java 17 -->
-    <preference name="GradlePluginVersion" value="7.6.1" /> <!-- Versione di Gradle compatibile con Java 17 -->
-    <preference name="GradleDistributionUrl" value="https\://services.gradle.org/distributions/gradle-7.6.1-all.zip" />
+    <preference name="android-targetSdkVersion" value="33" /> <!-- Ripristinato a 33 -->
+    <preference name="android-compileSdkVersion" value="33" /> <!-- Reintrodotto -->
+    <preference name="android-buildToolsVersion" value="33.0.2" /> <!-- Reintrodotto -->
+    <!-- Rimosse le preferenze Gradle per evitare conflitti con cordova-android@12.x.x -->
+    <!-- <preference name="GradlePluginVersion" value="7.6.1" /> -->
+    <!-- <preference name="GradleDistributionUrl" value="https\://services.gradle.org/distributions/gradle-7.6.1-all.zip" /> -->
      
     <!-- Plugin per Notifiche -->
     <plugin name="cordova-plugin-local-notification" spec="^1.1.0" />
