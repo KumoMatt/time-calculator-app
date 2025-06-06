@@ -434,7 +434,45 @@
             const endTimeStr = endTime.toTimeString().substring(0, 5);
             const notificationTimeStr = notificationTime.toTimeString().substring(0, 5);
 
-            // Simula l'impostazione della notifica (in un'app reale useresti le API native)
+            // Controlla se la notifica è nel passato
+            const now = new Date();
+            if (notificationTime <= now) {
+                alert('L\'orario della notifica è già passato! Modifica l\'orario di partenza o la durata.');
+                return;
+            }
+
+            // Notifica nativa Android con Cordova
+            if (window.cordova && cordova.plugins && cordova.plugins.notification) {
+                try {
+                    cordova.plugins.notification.local.schedule({
+                        id: Date.now(),
+                        title: 'Promemoria Attività 🔔',
+                        text: `${activityName} termina alle ${endTimeStr}`,
+                        trigger: { at: notificationTime },
+                        sound: true,
+                        vibrate: true,
+                        icon: 'res://icon',
+                        smallIcon: 'res://icon',
+                        badge: 1,
+                        priority: 2
+                    });
+                    
+                    console.log('Notifica nativa programmata con successo');
+                } catch (error) {
+                    console.error('Errore nella programmazione notifica nativa:', error);
+                    // Fallback per browser
+                    scheduleWebNotification(activityName, endTimeStr, notificationTime);
+                }
+            } 
+            // Fallback per browser web con Web Notifications API
+            else if ('Notification' in window) {
+                scheduleWebNotification(activityName, endTimeStr, notificationTime);
+            }
+            else {
+                console.log('Notifiche non supportate in questo ambiente');
+            }
+
+            // Aggiorna UI
             const notificationInfo = activityItem.querySelector('.notification-info');
             const notificationDetails = notificationInfo.querySelector('.notification-details');
             
@@ -447,17 +485,32 @@
             button.disabled = true;
             button.innerHTML = '✅ Notifica Attiva';
             button.style.background = '#48bb78';
+        }
 
-            // In un'app Android reale, qui useresti:
-            // cordova.plugins.notification.local.schedule({
-            //     title: 'Promemoria Attività',
-            //     text: `${activityName} termina alle ${endTimeStr}`,
-            //     trigger: { at: notificationTime },
-            //     sound: true,
-            //     vibrate: true
-            // });
-
-            console.log(`Notifica impostata per ${activityName} alle ${notificationTimeStr}`);
+        // Funzione fallback per notifiche web
+        function scheduleWebNotification(activityName, endTimeStr, notificationTime) {
+            if (Notification.permission === 'granted') {
+                const timeUntilNotification = notificationTime.getTime() - Date.now();
+                
+                if (timeUntilNotification > 0) {
+                    setTimeout(() => {
+                        new Notification('Promemoria Attività 🔔', {
+                            body: `${activityName} termina alle ${endTimeStr}`,
+                            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23667eea"/><text x="50" y="60" text-anchor="middle" fill="white" font-size="40">⏰</text></svg>',
+                            requireInteraction: true,
+                            tag: 'time-calculator'
+                        });
+                    }, timeUntilNotification);
+                    
+                    console.log(`Notifica web programmata per ${notificationTime.toLocaleString()}`);
+                }
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        scheduleWebNotification(activityName, endTimeStr, notificationTime);
+                    }
+                });
+            }
         }
 
         // Inizializza l'app
@@ -468,11 +521,31 @@
             const now = new Date();
             const currentTime = now.toTimeString().substring(0, 5);
             document.getElementById('startTime').value = currentTime;
+            
+            console.log('App inizializzata');
         });
 
-        // Richiedi permessi per le notifiche (per browser)
+        // Inizializza Cordova quando disponibile
+        document.addEventListener('deviceready', function() {
+            console.log('Cordova ready - Notifiche native disponibili');
+            
+            // Richiedi permessi notifiche su Android
+            if (window.cordova && cordova.plugins && cordova.plugins.notification) {
+                cordova.plugins.notification.local.hasPermission(function (granted) {
+                    if (!granted) {
+                        cordova.plugins.notification.local.requestPermission(function (granted) {
+                            console.log('Permessi notifiche:', granted ? 'Concessi' : 'Negati');
+                        });
+                    }
+                });
+            }
+        }, false);
+
+        // Richiedi permessi per le notifiche web (fallback per browser)
         if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission();
+            Notification.requestPermission().then(permission => {
+                console.log('Permessi notifiche web:', permission);
+            });
         }
     </script>
 </body>
