@@ -20,8 +20,9 @@
     <!-- Preferenze Android -->
     <preference name="android-minSdkVersion" value="22" />
     <preference name="android-targetSdkVersion" value="30" />
-    <!-- Le preferenze di versione esplicite come compileSdkVersion, buildToolsVersion, GradlePluginVersion, AndroidGradlePluginVersion
-         sono state rimosse per evitare conflitti con cordova-android@10.1.2. -->
+    <!-- Aggiunte preferenze per la versione di Gradle Wrapper per garantire compatibilità con Java 17 -->
+    <preference name="GradlePluginVersion" value="7.6.1" /> <!-- Versione di Gradle compatibile con Java 17 -->
+    <preference name="GradleDistributionUrl" value="https\://services.gradle.org/distributions/gradle-7.6.1-all.zip" />
      
     <!-- Plugin per Notifiche -->
     <plugin name="cordova-plugin-local-notification" spec="^1.1.0" />
@@ -46,15 +47,6 @@
         <icon density="xxhdpi" src="res/android/xxhdpi.png" />
         <icon density="xxxhdpi" src="res/android/xxxhdpi.png" />
          
-        <!-- Splash screens rimosse perché i file non sono presenti nel progetto -->
-        <!-- <splash density="land-ldpi" src="res/android/splash-land-ldpi.png" />
-        <splash density="land-mdpi" src="res/android/splash-land-mdpi.png" />
-        <splash density="land-hdpi" src="res/android/splash-land-hdpi.png" />
-        <splash density="land-xhdpi" src="res/android/splash-land-xhdpi.png" />
-        <splash density="port-ldpi" src="res/android/splash-port-ldpi.png" />
-        <splash density="port-mdpi" src="res/android/splash-port-mdpi.png" />
-        <splash density="port-hdpi" src="res/android/splash-port-hdpi.png" />
-        <splash density="port-xhdpi" src="res/android/splash-port-xhdpi.png" /> -->
     </platform>
      
     <!-- CSP Policy -->
