@@ -39,26 +39,16 @@ jobs:
 
     - name: Clean Cordova Platforms and Plugins
       # Rimuove le cartelle platforms e plugins per garantire una reinstallazione pulita
-      # '|| true' impedisce al workflow di fallire se le cartelle non sono già presenti
       run: rm -rf platforms plugins || true
 
-    - name: Add Android Platform
-      # Aggiunge la piattaforma Android, che dovrebbe generare i file Gradle wrapper
-      run: cordova platform add android
+    - name: Add Android Platform (Specific Stable Version)
+      # Aggiunge la piattaforma Android specificando una versione stabile (10.1.2)
+      # che è nota per generare correttamente il wrapper Gradle.
+      run: cordova platform add android@10.1.2
 
-    - name: Prepare Android Project
-      # Questo step finalizza la preparazione del progetto dopo l'aggiunta della piattaforma
-      run: cordova prepare android
-
-    - name: Make gradlew executable and Build Android APK
-      # DEBUG: Aggiunto per listare il contenuto della cartella 'android' prima di usare gradlew
-      run: |
-        echo "Contents of platforms/android/ after platform add and prepare:"
-        ls -l ./platforms/android/ 
-        # Rende lo script Gradle wrapper eseguibile
-        chmod +x ./platforms/android/gradlew
-        # Avvia la build dell'APK utilizzando il wrapper Gradle
-        ./platforms/android/gradlew assembleRelease
+    - name: Build Android APK
+      # Utilizza il comando standard di Cordova per la build
+      run: cordova build android --release
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
