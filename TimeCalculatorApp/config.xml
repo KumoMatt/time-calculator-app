@@ -2,7 +2,7 @@
 <widget id="com.timecalculator.app" version="1.0.0"  
         xmlns="http://www.w3.org/ns/widgets"  
         xmlns:gap="http://phonegap.com/ns/1.0"
-        xmlns:android="http://schemas.android.com/apk/res/android"> <!-- Importante: questo risolve l'errore 'AttributePrefixUnbound' -->
+        xmlns:android="http://schemas.android.com/apk/res/android">
      
     <name>Calcolatrice Orari</name>
     <description>App per calcolare gli orari delle attività con notifiche</description>
@@ -26,7 +26,6 @@
     <preference name="AndroidGradlePluginVersion" value="7.4.2" />
      
     <!-- Plugin per Notifiche -->
-    <!-- Aggiornate le versioni per coerenza con package.json -->
     <plugin name="cordova-plugin-local-notification" spec="^1.1.0" />
     <plugin name="cordova-plugin-whitelist" spec="^1.3.5" />
      
@@ -58,6 +57,9 @@
         <splash density="port-mdpi" src="res/android/splash-port-mdpi.png" />
         <splash density="port-hdpi" src="res/android/splash-port-hdpi.png" />
         <splash density="port-xhdpi" src="res/android/splash-port-xhdpi.png" />
+
+        <!-- Aggiunto riferimento al file build-extras.gradle per la risoluzione delle dipendenze Kotlin -->
+        <resource-file src="build-extras.gradle" target="app/build.gradle" parent="/*:root"/>
     </platform>
      
     <!-- CSP Policy -->
