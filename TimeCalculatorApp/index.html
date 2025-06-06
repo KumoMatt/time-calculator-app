@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatrice Orari</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="time"], input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input[type="time"]:focus, input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .activity-item {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .activity-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .activity-inputs {
+            display: grid;
+            grid-template-columns: 1fr 100px;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+        }
+
+        .btn-notification {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .btn-notification:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
+        }
+
+        .btn-notification:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(66, 153, 225, 0.3);
+        }
+
+        .add-activity {
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .notification-info {
+            background: #e6fffa;
+            border: 2px solid #81e6d9;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 10px;
+            color: #285e61;
+            font-size: 14px;
+            display: none;
+        }
+
+        .notification-info.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .activity-inputs {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏰ Calcolatrice Orari</h1>
+        
+        <div class="input-group">
+            <label for="startTime">Orario di Partenza</label>
+            <input type="time" id="startTime" value="09:00">
+        </div>
+
+        <div id="activities">
+            <div class="activity-item">
+                <div class="activity-header">
+                    <h3>Attività 1</h3>
+                    <button class="btn btn-danger remove-btn" onclick="removeActivity(this)" style="display: none;">✕</button>
+                </div>
+                <div class="activity-inputs">
+                    <input type="text" placeholder="Nome attività" class="activity-name" value="Riunione">
+                    <input type="number" placeholder="Min" class="activity-duration" value="60" min="1" max="1440">
+                </div>
+                <button class="btn btn-notification" onclick="setNotification(this)">
+                    🔔 Notifica 10 min prima
+                </button>
+                <div class="notification-info">
+                    <strong>Notifica impostata!</strong><br>
+                    <span class="notification-details"></span>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-secondary add-activity" onclick="addActivity()">
+            ➕ Aggiungi Attività
+        </button>
+
+        <button class="btn btn-primary" onclick="calculate()" style="width: 100%; margin: 20px 0;">
+            🧮 Calcola
+        </button>
+
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        let activityCount = 1;
+        let notifications = [];
+
+        function addActivity() {
+            activityCount++;
+            const activitiesContainer = document.getElementById('activities');
+            
+            const activityDiv = document.createElement('div');
+            activityDiv.className = 'activity-item';
+            activityDiv.innerHTML = `
+                <div class="activity-header">
+                    <h3>Attività ${activityCount}</h3>
+                    <button class="btn btn-danger remove-btn" onclick="removeActivity(this)">✕</button>
+                </div>
+                <div class="activity-inputs">
+                    <input type="text" placeholder="Nome attività" class="activity-name">
+                    <input type="number" placeholder="Min" class="activity-duration" min="1" max="1440">
+                </div>
+                <button class="btn btn-notification" onclick="setNotification(this)">
+                    🔔 Notifica 10 min prima
+                </button>
+                <div class="notification-info">
+                    <strong>Notifica impostata!</strong><br>
+                    <span class="notification-details"></span>
+                </div>
+            `;
+            
+            activitiesContainer.appendChild(activityDiv);
+            updateRemoveButtons();
+            
+            // Animazione di entrata
+            setTimeout(() => {
+                activityDiv.style.opacity = '1';
+                activityDiv.style.transform = 'translateY(0)';
+            }, 10);
+        }
+
+        function removeActivity(button) {
+            const activityItem = button.closest('.activity-item');
+            activityItem.style.transform = 'translateX(100%)';
+            activityItem.style.opacity = '0';
+            
+            setTimeout(() => {
+                activityItem.remove();
+                updateRemoveButtons();
+                renumberActivities();
+            }, 300);
+        }
+
+        function updateRemoveButtons() {
+            const activities = document.querySelectorAll('.activity-item');
+            activities.forEach(activity => {
+                const removeBtn = activity.querySelector('.remove-btn');
+                removeBtn.style.display = activities.length > 1 ? 'block' : 'none';
+            });
+        }
+
+        function renumberActivities() {
+            const activities = document.querySelectorAll('.activity-item');
+            activities.forEach((activity, index) => {
+                const header = activity.querySelector('h3');
+                header.textContent = `Attività ${index + 1}`;
+            });
+            activityCount = activities.length;
+        }
+
+        function calculate() {
+            const startTimeInput = document.getElementById('startTime');
+            const activities = document.querySelectorAll('.activity-item');
+            
+            if (!startTimeInput.value) {
+                alert('Inserisci l\'orario di partenza!');
+                return;
+            }
+
+            let startTime = new Date();
+            const [hours, minutes] = startTimeInput.value.split(':');
+            startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+            
+            let currentTime = new Date(startTime);
+            let results = [];
+            let hasValidActivities = false;
+
+            activities.forEach((activity, index) => {
+                const name = activity.querySelector('.activity-name').value;
+                const duration = parseInt(activity.querySelector('.activity-duration').value);
+                
+                if (name && duration && duration > 0) {
+                    hasValidActivities = true;
+                    currentTime.setMinutes(currentTime.getMinutes() + duration);
+                    
+                    const endTime = currentTime.toTimeString().substring(0, 5);
+                    results.push({
+                        name: name,
+                        duration: duration,
+                        endTime: endTime
+                    });
+                }
+            });
+
+            if (!hasValidActivities) {
+                alert('Inserisci almeno un\'attività valida con nome e durata!');
+                return;
+            }
+
+            const resultDiv = document.getElementById('result');
+            let resultHTML = `
+                <div style="margin-bottom: 15px;">
+                    <strong>📅 Orario di partenza:</strong> ${startTimeInput.value}
+                </div>
+            `;
+            
+            results.forEach(result => {
+                resultHTML += `
+                    <div style="margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 8px;">
+                        <strong>${result.name}</strong><br>
+                        Durata: ${result.duration} min → Fine: <strong>${result.endTime}</strong>
+                    </div>
+                `;
+            });
+            
+            const finalEndTime = results[results.length - 1].endTime;
+            resultHTML += `
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.3); border-radius: 10px; border: 2px solid rgba(255,255,255,0.5);">
+                    <strong>🏁 Termine di tutte le attività: ${finalEndTime}</strong>
+                </div>
+            `;
+
+            resultDiv.innerHTML = resultHTML;
+            resultDiv.style.display = 'block';
+            
+            // Scroll smooth verso il risultato
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function setNotification(button) {
+            const activityItem = button.closest('.activity-item');
+            const activityName = activityItem.querySelector('.activity-name').value;
+            const duration = parseInt(activityItem.querySelector('.activity-duration').value);
+            
+            if (!activityName || !duration || duration <= 0) {
+                alert('Inserisci nome e durata dell\'attività prima di impostare la notifica!');
+                return;
+            }
+
+            // Calcola l'orario di fine attività
+            const startTimeInput = document.getElementById('startTime');
+            if (!startTimeInput.value) {
+                alert('Inserisci l\'orario di partenza prima di impostare la notifica!');
+                return;
+            }
+
+            // Calcola il tempo totale fino a questa attività
+            let totalMinutes = 0;
+            const activities = document.querySelectorAll('.activity-item');
+            
+            for (let activity of activities) {
+                const actDuration = parseInt(activity.querySelector('.activity-duration').value) || 0;
+                totalMinutes += actDuration;
+                
+                if (activity === activityItem) break;
+            }
+
+            let endTime = new Date();
+            const [hours, minutes] = startTimeInput.value.split(':');
+            endTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+            endTime.setMinutes(endTime.getMinutes() + totalMinutes);
+
+            // Calcola l'orario della notifica (10 minuti prima)
+            let notificationTime = new Date(endTime);
+            notificationTime.setMinutes(notificationTime.getMinutes() - 10);
+
+            const endTimeStr = endTime.toTimeString().substring(0, 5);
+            const notificationTimeStr = notificationTime.toTimeString().substring(0, 5);
+
+            // Simula l'impostazione della notifica (in un'app reale useresti le API native)
+            const notificationInfo = activityItem.querySelector('.notification-info');
+            const notificationDetails = notificationInfo.querySelector('.notification-details');
+            
+            notificationDetails.innerHTML = `
+                <strong>${activityName}</strong> termina alle <strong>${endTimeStr}</strong><br>
+                Notifica programmata per le <strong>${notificationTimeStr}</strong>
+            `;
+            
+            notificationInfo.classList.add('show');
+            button.disabled = true;
+            button.innerHTML = '✅ Notifica Attiva';
+            button.style.background = '#48bb78';
+
+            // In un'app Android reale, qui useresti:
+            // cordova.plugins.notification.local.schedule({
+            //     title: 'Promemoria Attività',
+            //     text: `${activityName} termina alle ${endTimeStr}`,
+            //     trigger: { at: notificationTime },
+            //     sound: true,
+            //     vibrate: true
+            // });
+
+            console.log(`Notifica impostata per ${activityName} alle ${notificationTimeStr}`);
+        }
+
+        // Inizializza l'app
+        document.addEventListener('DOMContentLoaded', function() {
+            updateRemoveButtons();
+            
+            // Imposta l'orario corrente come default
+            const now = new Date();
+            const currentTime = now.toTimeString().substring(0, 5);
+            document.getElementById('startTime').value = currentTime;
+        });
+
+        // Richiedi permessi per le notifiche (per browser)
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    </script>
+</body>
+</html>

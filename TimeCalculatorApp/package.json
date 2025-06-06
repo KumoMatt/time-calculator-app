@@ -1,0 +1,24 @@
+{
+  "name": "time-calculator-app",
+  "version": "1.0.0",
+  "description": "Calcolatrice orari con notifiche",
+  "main": "index.html",
+  "scripts": {
+    "build": "cordova build android"
+  },
+  "dependencies": {
+    "cordova": "^12.0.0",
+    "cordova-android": "^12.0.0",
+    "cordova-plugin-local-notification": "^0.9.0",
+    "cordova-plugin-whitelist": "^1.3.4"
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-local-notification": {},
+      "cordova-plugin-whitelist": {}
+    },
+    "platforms": [
+      "android"
+    ]
+  }
+}
