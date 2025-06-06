@@ -7,8 +7,8 @@
     "build": "cordova build android",
     "build-release": "cordova build android --release",
     "serve": "cordova serve",
-    "clean": "cordova clean android",
-    "prepare": "cordova prepare android"
+    "clean": "cordova clean android"
+    // Rimosso "prepare": "cordova prepare android"
   },
   "dependencies": {
     "cordova-android": "^12.0.1",
