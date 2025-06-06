@@ -1,3 +1,5 @@
+// Questo file forza l'uso di una versione specifica della libreria standard Kotlin
+// per risolvere i conflitti di dipendenza 'Duplicate class'.
 configurations.all {
     resolutionStrategy {
         // Itera su tutte le dipendenze
@@ -8,8 +10,7 @@ configurations.all {
                 if (details.requested.name == 'kotlin-stdlib' ||
                     details.requested.name == 'kotlin-stdlib-jdk7' ||
                     details.requested.name == 'kotlin-stdlib-jdk8') {
-                    // Forza la versione a 1.8.22, che sembra essere presente nel log
-                    // e dovrebbe essere compatibile con le altre dipendenze.
+                    // Forza la versione a 1.8.22, che è quella che vogliamo usare
                     details.useVersion '1.8.22'
                 }
             }
