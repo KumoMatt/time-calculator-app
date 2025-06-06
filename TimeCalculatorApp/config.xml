@@ -58,8 +58,8 @@
         <splash density="port-hdpi" src="res/android/splash-port-hdpi.png" />
         <splash density="port-xhdpi" src="res/android/splash-port-xhdpi.png" />
 
-        <!-- Aggiunto riferimento al file build-extras.gradle per la risoluzione delle dipendenze Kotlin -->
-        <resource-file src="build-extras.gradle" target="app/build.gradle" parent="/*:root"/>
+        <!-- Rimosso temporaneamente per debug del problema 'gradlew missing' -->
+        <!-- <resource-file src="build-extras.gradle" target="app/build.gradle" parent="/*:root"/> -->
     </platform>
      
     <!-- CSP Policy -->
