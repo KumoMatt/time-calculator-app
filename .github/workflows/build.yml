@@ -58,8 +58,8 @@ jobs:
         echo "Strategia di risoluzione Kotlin iniettata nel blocco allprojects in platforms/android/build.gradle."
 
     - name: Build Android App Bundle (AAB)
-      # Esegue la build di rilascio per generare l'AAB (comportamento predefinito di cordova-android@12.x.x)
-      run: cordova build android --release
+      # Esegue la build di rilascio per generare l'AAB. Specifichiamo l'output per essere sicuri.
+      run: cordova build android --release -- --outputType=bundle
 
     - name: Create build.json for APK output
       # Crea il file build.json per forzare la generazione di un APK
