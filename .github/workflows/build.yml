@@ -82,10 +82,12 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: android-aab
+        # Manteniamo il percorso del bundle con wildcard, ma se fallisce di nuovo, l'AAB non viene generato.
         path: platforms/android/app/build/outputs/bundle/release/*.aab
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: android-apk
-        path: platforms/android/app/build/outputs/apk/release/*.apk
+        # Percorso esatto dell'APK identificato dal log precedente
+        path: platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
