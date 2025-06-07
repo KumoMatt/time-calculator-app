@@ -8,7 +8,7 @@
         "storePassword": "STORE_PASSWORD",
         "keyPassword": "KEY_PASSWORD"
       },
-      "proguard": {}
+      "proguard": false  // Disabilita ProGuard/R8 per evitare problemi di installazione
     }
   }
 }
