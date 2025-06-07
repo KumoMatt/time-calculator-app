@@ -179,10 +179,10 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: android-aab
-        path: platforms/android/app/build/outputs/bundle/release/*.aab # Mantenuto il percorso con wildcard
+        path: TimeCalculatorApp/platforms/android/app/build/outputs/bundle/release/*.aab
 
     - name: Upload Signed and Zipaligned APK
       uses: actions/upload-artifact@v4
       with:
         name: android-apk-signed-zipaligned
-        path: ${{ steps.sign_zipaligned_apk_step.outputs.final_signed_apk_path }}
+        path: TimeCalculatorApp/${{ steps.sign_zipaligned_apk_step.outputs.final_signed_apk_path }}
