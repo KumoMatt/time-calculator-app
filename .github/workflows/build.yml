@@ -49,6 +49,15 @@ jobs:
       # Questo step finalizza la preparazione del progetto dopo l'aggiunta della piattaforma
       run: cordova prepare android
 
+    - name: Force Android Gradle Plugin and Gradle Wrapper versions
+      # Modifica direttamente i file Gradle per forzare le versioni compatibili con Java 17 e API 34
+      run: |
+        # Modifica build.gradle (root) per AGP version
+        sed -i "s|classpath 'com.android.tools.build:gradle:.*'|classpath 'com.android.tools.build:gradle:8.1.4'|" platforms/android/build.gradle
+        # Modifica gradle-wrapper.properties per Gradle distribution URL
+        sed -i "s|distributionUrl=https\\://services.gradle.org/distributions/gradle-.*-all.zip|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.5-all.zip|" platforms/android/gradle/wrapper/gradle-wrapper.properties
+        echo "Forzate le versioni di Android Gradle Plugin (8.1.4) e Gradle Wrapper (8.5)."
+
     - name: Inject Kotlin Resolution Strategy
       # Inietta il contenuto di build-extras.gradle all'interno del blocco 'allprojects {'
       # Questo assicura che la strategia di risoluzione Kotlin si applichi globalmente
@@ -57,17 +66,43 @@ jobs:
         awk -v content="$KOTLIN_FIX_CONTENT" '/^allprojects {/ { print; print content; next }1' platforms/android/build.gradle > platforms/android/build.gradle.tmp && mv platforms/android/build.gradle.tmp platforms/android/build.gradle
         echo "Strategia di risoluzione Kotlin iniettata nel blocco allprojects in platforms/android/build.gradle."
 
+    - name: Create Keystore
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      # Crea il keystore se non esiste già (solo per push su main)
+      run: |
+        if [ ! -f release.keystore ]; then
+          keytool -genkey -v -keystore release.keystore -alias my_app_alias -keyalg RSA -keysize 2048 -validity 10000 \
+          -dname "CN=Your Name, OU=Your Org, O=Your Company, L=Your City, ST=Your State, C=Your Country" \
+          -storepass "${{ secrets.KEYSTORE_STORE_PASSWORD }}" -keypass "${{ secrets.KEYSTORE_KEY_PASSWORD }}"
+          echo "Keystore generato in release.keystore"
+        else
+          echo "Keystore release.keystore già esistente."
+        fi
+
+    - name: Copy Keystore to Android Platform
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      # Copia il keystore generato/esistente nella directory della piattaforma Android
+      run: |
+        mkdir -p platforms/android/
+        cp release.keystore platforms/android/release.keystore
+        echo "Keystore copiato in platforms/android/release.keystore"
+
+    - name: Replace build.json placeholders
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      # Sostituisce i placeholder nel build.json con i valori dei segreti
+      run: |
+        BUILD_JSON_CONTENT=$(cat build.json)
+        BUILD_JSON_CONTENT=$(echo "$BUILD_JSON_CONTENT" | sed "s/STORE_PASSWORD/${{ secrets.KEYSTORE_STORE_PASSWORD }}/g")
+        BUILD_JSON_CONTENT=$(echo "$BUILD_JSON_CONTENT" | sed "s/KEY_PASSWORD/${{ secrets.KEYSTORE_KEY_PASSWORD }}/g")
+        echo "$BUILD_JSON_CONTENT" > build.json
+        echo "Placeholder del build.json sostituiti."
+
     - name: Build Android App Bundle (AAB)
-      # Esegue la build di rilascio per generare l'AAB. Specifichiamo l'output per essere sicuri.
+      # Esegue la build di rilascio per generare l'AAB
       run: cordova build android --release -- --outputType=bundle
 
-    - name: Create build.json for APK output
-      # Crea il file build.json per forzare la generazione di un APK
-      run: |
-        echo '{"android": {"release": {"packageType": "apk", "proguard": {}}}}' > build.json
-
-    - name: Build Android APK
-      # Esegue la build di rilascio usando il build.json per generare l'APK
+    - name: Build Signed Android APK
+      # Esegue la build di rilascio usando il build.json per generare l'APK firmato
       run: cordova build android --release --buildConfig=build.json
 
     - name: Find and list all build outputs
@@ -82,12 +117,12 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: android-aab
-        # Percorso completo dalla working-directory radice (TimeCalculatorApp)
         path: TimeCalculatorApp/platforms/android/app/build/outputs/bundle/release/*.aab
 
-    - name: Upload APK
+    - name: Upload Signed APK
       uses: actions/upload-artifact@v4
       with:
-        name: android-apk
-        # Percorso completo dalla working-directory radice (TimeCalculatorApp)
-        path: TimeCalculatorApp/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
+        name: android-apk-signed
+        # L'APK firmato avrà probabilmente un nome come app-release.apk (non unsigned)
+        # Il percorso esatto può variare, quindi usiamo un wildcard qui.
+        path: TimeCalculatorApp/platforms/android/app/build/outputs/apk/release/*.apk
