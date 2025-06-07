@@ -70,13 +70,13 @@ jobs:
       # Esegue la build di rilascio usando il build.json per generare l'APK
       run: cordova build android --release --buildConfig=build.json
 
-    - name: List all build outputs
-      # DEBUG: Elenca il contenuto delle directory di output per verificare i file generati
+    - name: Find and list all build outputs
+      # DEBUG: Cerca e elenca ricorsivamente tutti i file .apk e .aab
       run: |
-        echo "Listing contents of platforms/android/app/build/outputs/apk/release/"
-        ls -R platforms/android/app/build/outputs/apk/release/ || true
-        echo "Listing contents of platforms/android/app/build/outputs/bundle/release/"
-        ls -R platforms/android/app/build/outputs/bundle/release/ || true
+        echo "Searching for .apk files:"
+        find platforms/android/ -name "*.apk" || true
+        echo "Searching for .aab files:"
+        find platforms/android/ -name "*.aab" || true
 
     - name: Upload AAB (Android App Bundle)
       uses: actions/upload-artifact@v4
