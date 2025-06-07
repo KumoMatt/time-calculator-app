@@ -71,23 +71,23 @@ jobs:
       run: cordova build android --release --buildConfig=build.json
 
     - name: Find and list all build outputs
-      # DEBUG: Cerca e elenca ricorsivamente tutti i file .apk e .aab
+      # DEBUG: Cerca e elenca ricorsivamente tutti i file .apk e .aab dalla radice del working directory
       run: |
-        echo "Searching for .apk files:"
-        find platforms/android/ -name "*.apk" || true
-        echo "Searching for .aab files:"
-        find platforms/android/ -name "*.aab" || true
+        echo "Searching for .apk files from current working directory:"
+        find . -name "*.apk" || true
+        echo "Searching for .aab files from current working directory:"
+        find . -name "*.aab" || true
 
     - name: Upload AAB (Android App Bundle)
       uses: actions/upload-artifact@v4
       with:
         name: android-aab
-        # Manteniamo il percorso del bundle con wildcard, ma se fallisce di nuovo, l'AAB non viene generato.
-        path: platforms/android/app/build/outputs/bundle/release/*.aab
+        # Percorso completo dalla working-directory radice (TimeCalculatorApp)
+        path: TimeCalculatorApp/platforms/android/app/build/outputs/bundle/release/*.aab
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: android-apk
-        # Percorso esatto dell'APK identificato dal log precedente
-        path: platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
+        # Percorso completo dalla working-directory radice (TimeCalculatorApp)
+        path: TimeCalculatorApp/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
