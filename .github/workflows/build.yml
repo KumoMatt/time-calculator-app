@@ -50,9 +50,9 @@ jobs:
     - name: Prepare Android Project
       run: cordova prepare android
 
-    - name: Make gradlew executable
-      # Assicura che lo script gradlew sia eseguibile
-      run: chmod +x platforms/android/gradlew
+    # Rimosso lo step separato "Make gradlew executable"
+    # - name: Make gradlew executable
+    #   run: chmod +x platforms/android/gradlew
 
     - name: Force Android Gradle Plugin version
       run: |
@@ -92,6 +92,8 @@ jobs:
       # Esegue direttamente il comando Gradle per generare l'AAB
       run: |
         cd platforms/android
+        ls -l # DEBUG: Mostra i file nella directory
+        chmod +x ./gradlew # Rende gradlew eseguibile proprio prima dell'uso
         ./gradlew bundleRelease
         cd ../..
         echo "AAB generato tramite gradlew."
@@ -100,6 +102,8 @@ jobs:
       # Esegue direttamente il comando Gradle per generare l'APK non firmato
       run: |
         cd platforms/android
+        ls -l # DEBUG: Mostra i file nella directory
+        chmod +x ./gradlew # Rende gradlew eseguibile proprio prima dell'uso
         ./gradlew assembleRelease
         cd ../..
         echo "APK non firmato generato tramite gradlew."
