@@ -101,7 +101,8 @@ jobs:
         cp release.keystore platforms/android/release.keystore
         echo "Keystore copiato in platforms/android/release.keystore"
 
-    # Nuovi step per la generazione diretta con gradlew e firma esplicita
+    # Ordine modificato: AAB build, poi Unsigned APK, poi Zipalign (su unsigned), poi Sign (su zipaligned)
+
     - name: Build AAB using gradlew
       # Esegue direttamente il comando Gradle per generare l'AAB
       run: |
@@ -118,55 +119,53 @@ jobs:
         cd ../..
         echo "APK non firmato generato tramite gradlew."
 
-    - name: Identify Unsigned APK path for signing
-      id: unsigned_apk_path
+    - name: Identify Unsigned APK path
+      id: unsigned_apk_path_step
       run: |
         # Trova l'APK non firmato. Il nome è app-release-unsigned.apk
-        UNSIGNED_APK=$(find platforms/android/app/build/outputs/apk/release/ -name "app-release-unsigned.apk")
-        echo "Identified unsigned APK for signing: $UNSIGNED_APK"
-        if [ -z "$UNSIGNED_APK" ]; then
-          echo "Error: Unsigned APK not found for signing!"
+        UNSIGNED_APK_PATH=$(find platforms/android/app/build/outputs/apk/release/ -name "app-release-unsigned.apk" | head -n 1)
+        echo "Identified unsigned APK: $UNSIGNED_APK_PATH"
+        if [ -z "$UNSIGNED_APK_PATH" ]; then
+          echo "Error: Unsigned APK not found for zipaligning!"
           exit 1
         fi
-        echo "unsigned_apk_path=$UNSIGNED_APK" >> "$GITHUB_OUTPUT"
-      
-    - name: Sign APK
-      # Firma l'APK non firmato usando apksigner
+        echo "unsigned_apk_path=$UNSIGNED_APK_PATH" >> "$GITHUB_OUTPUT"
+
+    - name: Zipalign Unsigned APK
+      id: zipalign_unsigned_apk_step
+      run: |
+        ZIPALIGN_PATH="${ANDROID_HOME}/build-tools/34.0.0/zipalign"
+        UNSIGNED_APK_PATH="${{ steps.unsigned_apk_path_step.outputs.unsigned_apk_path }}"
+        ZIPALIGNED_UNSIGNED_APK_PATH="${UNSIGNED_APK_PATH/.apk/-zipaligned.apk}" # Nuovo nome per l'APK zipaligned
+
+        "$ZIPALIGN_PATH" -v 4 "$UNSIGNED_APK_PATH" "$ZIPALIGNED_UNSIGNED_APK_PATH"
+        echo "Unsigned APK zipaligned successfully: $ZIPALIGNED_UNSIGNED_APK_PATH"
+        echo "zipaligned_unsigned_apk_path=$ZIPALIGNED_UNSIGNED_APK_PATH" >> "$GITHUB_OUTPUT"
+
+    - name: Sign Zipaligned APK
+      id: sign_zipaligned_apk_step
       run: |
         APKSIGNER_PATH="${ANDROID_HOME}/build-tools/34.0.0/apksigner"
-        UNSIGNED_APK_PATH="${{ steps.unsigned_apk_path.outputs.unsigned_apk_path }}"
-        SIGNED_APK_PATH="${UNSIGNED_APK_PATH/.apk/-signed.apk}" # Creiamo un nuovo file per l'APK firmato
+        ZIPALIGNED_UNSIGNED_APK_PATH="${{ steps.zipalign_unsigned_apk_step.outputs.zipaligned_unsigned_apk_path }}"
+        FINAL_SIGNED_APK_PATH="${ZIPALIGNED_UNSIGNED_APK_PATH/.apk/-signed-final.apk}" # Creiamo un nuovo file per l'APK firmato e finale
         
         "$APKSIGNER_PATH" sign --ks release.keystore \
           --ks-key-alias my_app_alias \
           --ks-pass pass:"${{ secrets.KEYSTORE_STORE_PASSWORD }}" \
           --key-pass pass:"${{ secrets.KEYSTORE_KEY_PASSWORD }}" \
-          --out "$SIGNED_APK_PATH" \
-          "$UNSIGNED_APK_PATH"
+          --out "$FINAL_SIGNED_APK_PATH" \
+          "$ZIPALIGNED_UNSIGNED_APK_PATH"
         
-        echo "APK signed successfully: $SIGNED_APK_PATH"
-        echo "signed_apk_path=$SIGNED_APK_PATH" >> "$GITHUB_OUTPUT"
-      id: sign_apk_step
-
-    - name: Zipalign Signed APK
-      # Allinea l'APK firmato per ottimizzazione.
-      run: |
-        ZIPALIGN_PATH="${ANDROID_HOME}/build-tools/34.0.0/zipalign"
-        SIGNED_APK_PATH="${{ steps.sign_apk_step.outputs.signed_apk_path }}"
-        FINAL_APK_PATH="${SIGNED_APK_PATH/.apk/-final.apk}" # Nuovo nome per l'APK zipalignato
-
-        "$ZIPALIGN_PATH" -v 4 "$SIGNED_APK_PATH" "$FINAL_APK_PATH"
-        echo "APK zipaligned successfully: $FINAL_APK_PATH"
-        echo "final_apk_path=$FINAL_APK_PATH" >> "$GITHUB_OUTPUT"
-      id: zipalign_apk_step
+        echo "APK signed successfully: $FINAL_SIGNED_APK_PATH"
+        echo "final_signed_apk_path=$FINAL_SIGNED_APK_PATH" >> "$GITHUB_OUTPUT"
 
     - name: Verify Final APK Signature
       # Verifica la firma dell'APK finale per debug
       run: |
         APKSIGNER_PATH="${ANDROID_HOME}/build-tools/34.0.0/apksigner"
-        FINAL_APK_PATH="${{ steps.zipalign_apk_step.outputs.final_apk_path }}"
-        echo "Verifying signature of: $FINAL_APK_PATH"
-        "$APKSIGNER_PATH" verify --verbose "$FINAL_APK_PATH" || echo "Signature verification FAILED!"
+        FINAL_SIGNED_APK_PATH="${{ steps.sign_zipaligned_apk_step.outputs.final_signed_apk_path }}"
+        echo "Verifying signature of: $FINAL_SIGNED_APK_PATH"
+        "$APKSIGNER_PATH" verify --verbose "$FINAL_SIGNED_APK_PATH" || echo "Signature verification FAILED!"
 
     - name: Find and list all final build outputs
       # DEBUG: Cerca e elenca ricorsivamente tutti i file .apk e .aab dalla radice del working directory
@@ -186,4 +185,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: android-apk-signed-zipaligned
-        path: ${{ steps.zipalign_apk_step.outputs.final_apk_path }}
+        path: ${{ steps.sign_zipaligned_apk_step.outputs.final_signed_apk_path }}
