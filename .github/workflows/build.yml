@@ -55,7 +55,6 @@ jobs:
         # Modifica build.gradle (root) per AGP version
         sed -i "s|classpath 'com.android.tools.build:gradle:.*'|classpath 'com.android.tools.build:gradle:8.1.4'|" platforms/android/build.gradle
         echo "Forzata la versione di Android Gradle Plugin (8.1.4)."
-        # Rimosso il comando per gradle-wrapper.properties per evitare l'errore "No such file or directory"
 
     - name: Inject Kotlin Resolution Strategy
       # Inietta il contenuto di build-extras.gradle all'interno del blocco 'allprojects {'
@@ -86,6 +85,15 @@ jobs:
         cp release.keystore platforms/android/release.keystore
         echo "Keystore copiato in platforms/android/release.keystore"
 
+    - name: Build Android App Bundle (AAB) - Default behavior
+      # Esegue la build di rilascio. Per cordova-android@12.x.x, questo dovrebbe generare l'AAB per impostazione predefinita
+      run: cordova build android --release
+
+    - name: Clean Android build outputs for APK
+      # Pulisce gli output della build APK prima di generare l'APK firmato
+      run: |
+        rm -rf platforms/android/app/build/outputs/apk || true
+
     - name: Replace build.json placeholders
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       # Sostituisce i placeholder nel build.json con i valori dei segreti
@@ -96,10 +104,6 @@ jobs:
         BUILD_JSON_CONTENT=$(echo "$BUILD_JSON_CONTENT" | sed "s#KEY_PASSWORD#${{ secrets.KEYSTORE_KEY_PASSWORD }}#g")
         echo "$BUILD_JSON_CONTENT" > build.json
         echo "Placeholder del build.json sostituiti."
-
-    - name: Build Android App Bundle (AAB)
-      # Esegue la build di rilascio per generare l'AAB
-      run: cordova build android --release -- --outputType=bundle
 
     - name: Build Signed Android APK
       # Esegue la build di rilascio usando il build.json per generare l'APK firmato
