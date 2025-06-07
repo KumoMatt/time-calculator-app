@@ -50,6 +50,10 @@ jobs:
     - name: Prepare Android Project
       run: cordova prepare android
 
+    - name: Make gradlew executable
+      # Assicura che lo script gradlew sia eseguibile
+      run: chmod +x platforms/android/gradlew
+
     - name: Force Android Gradle Plugin version
       run: |
         # Modifica build.gradle (root) per AGP version
