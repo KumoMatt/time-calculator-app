@@ -50,10 +50,13 @@ jobs:
       run: cordova prepare android
 
     - name: Inject Kotlin Resolution Strategy
-      # Inietta il contenuto di build-extras.gradle nel build.gradle principale della piattaforma Android
+      # Inietta il contenuto di build-extras.gradle all'inizio del build.gradle principale della piattaforma Android
+      # Questo assicura che la strategia di risoluzione Kotlin si applichi globalmente
       run: |
-        cat build-extras.gradle >> platforms/android/build.gradle
-        echo "Kotlin resolution strategy injected into platforms/android/build.gradle"
+        temp_content=$(cat build-extras.gradle)
+        target_file="platforms/android/build.gradle"
+        echo "$temp_content" | cat - "$target_file" > temp && mv temp "$target_file"
+        echo "Strategia di risoluzione Kotlin iniettata all'inizio di platforms/android/build.gradle"
 
     - name: Build Android APK
       # Utilizza il comando standard di Cordova per la build
