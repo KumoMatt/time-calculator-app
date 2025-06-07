@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.timecalculator.app" version="1.0.0"  
-        xmlns="http://www.w3.org/ns/widgets"  
+<widget id="com.timecalculator.app" version="1.0.0"
+        xmlns="http://www.w3.org/ns/widgets"
         xmlns:gap="http://phonegap.com/ns/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android">
      
-    <name>Calcolatrice Orari</name>
+    <name>Time Manager</name> <!-- App title changed to Time Manager -->
     <description>App per calcolare gli orari delle attività con notifiche</description>
     <author email="kumokumomatt@gmail.com">KumoMatt</author>
      
@@ -16,21 +16,23 @@
     <preference name="fullscreen" value="false" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="BackgroundColor" value="0xff667eea" />
+    <!-- Imposta la lingua predefinita a inglese -->
+    <preference name="android-locale" value="en-US"/>
      
     <!-- Preferenze Android: AGGIORNATE A API 34 E PLUGIN GRADLE COMPATIBILI -->
     <preference name="android-minSdkVersion" value="22" />
     <preference name="android-targetSdkVersion" value="34" />
     <preference name="android-compileSdkVersion" value="34" />
     <preference name="android-buildToolsVersion" value="34.0.0" />
-    <!-- Aggiornate le versioni del Plugin Gradle per compatibilità con compileSdk 34 e Gradle 8.x -->
     <preference name="AndroidGradlePluginVersion" value="8.1.4" />
     <preference name="GradleVersion" value="8.5" />
     <preference name="GradleDistributionUrl" value="https\://services.gradle.org/distributions/gradle-8.5-all.zip" />
      
-    <!-- Plugin per Notifiche -->
+    <!-- Plugin per Notifiche (assicurati che sia installato nel tuo progetto Cordova) -->
     <plugin name="cordova-plugin-local-notification" spec="^1.1.0" />
     <plugin name="cordova-plugin-whitelist" spec="^1.3.5" />
-     
+    <plugin name="cordova-plugin-device" spec="^2.1.0" />
+
     <!-- Permessi Android -->
     <platform name="android">
         <allow-intent href="market:*" />
@@ -42,7 +44,7 @@
         <uses-permission android:name="android.permission.VIBRATE" />
         <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
          
-        <!-- Icone -->
+        <!-- Icone (mantieni i percorsi esistenti, ma assicurati che i file siano presenti) -->
         <icon density="ldpi" src="res/android/ldpi.png" />
         <icon density="mdpi" src="res/android/mdpi.png" />
         <icon density="hdpi" src="res/android/hdpi.png" />
