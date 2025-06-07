@@ -91,8 +91,9 @@ jobs:
       # Sostituisce i placeholder nel build.json con i valori dei segreti
       run: |
         BUILD_JSON_CONTENT=$(cat build.json)
-        BUILD_JSON_CONTENT=$(echo "$BUILD_JSON_CONTENT" | sed "s/STORE_PASSWORD/${{ secrets.KEYSTORE_STORE_PASSWORD }}/g")
-        BUILD_JSON_CONTENT=$(echo "$BUILD_JSON_CONTENT" | sed "s/KEY_PASSWORD/${{ secrets.KEYSTORE_KEY_PASSWORD }}/g")
+        # Usa '#' come delimitatore per evitare problemi con '/' o '&' nelle password
+        BUILD_JSON_CONTENT=$(echo "$BUILD_JSON_CONTENT" | sed "s#STORE_PASSWORD#${{ secrets.KEYSTORE_STORE_PASSWORD }}#g")
+        BUILD_JSON_CONTENT=$(echo "$BUILD_JSON_CONTENT" | sed "s#KEY_PASSWORD#${{ secrets.KEYSTORE_KEY_PASSWORD }}#g")
         echo "$BUILD_JSON_CONTENT" > build.json
         echo "Placeholder del build.json sostituiti."
 
