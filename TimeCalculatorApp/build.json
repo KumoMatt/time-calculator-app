@@ -1,1 +1,10 @@
 
+{
+  "android": {
+    "release": {
+      "packageType": "apk",
+      "signingProperties": "release-signing.properties",
+      "proguard": {}
+    }
+  }
+}
