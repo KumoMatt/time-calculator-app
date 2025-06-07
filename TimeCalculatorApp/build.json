@@ -1,9 +1,13 @@
-
 {
   "android": {
     "release": {
       "packageType": "apk",
-      "signingProperties": "release-signing.properties",
+      "signingProperties": {
+        "storeFile": "release.keystore",
+        "keyAlias": "my_app_alias",
+        "storePassword": "STORE_PASSWORD",
+        "keyPassword": "KEY_PASSWORD"
+      },
       "proguard": {}
     }
   }
