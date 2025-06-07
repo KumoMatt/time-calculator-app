@@ -49,14 +49,13 @@ jobs:
       # Questo step finalizza la preparazione del progetto dopo l'aggiunta della piattaforma
       run: cordova prepare android
 
-    - name: Force Android Gradle Plugin and Gradle Wrapper versions
-      # Modifica direttamente i file Gradle per forzare le versioni compatibili con Java 17 e API 34
+    - name: Force Android Gradle Plugin version
+      # Modifica direttamente il file Gradle per forzare la versione dell'Android Gradle Plugin compatibile con Java 17 e API 34
       run: |
         # Modifica build.gradle (root) per AGP version
         sed -i "s|classpath 'com.android.tools.build:gradle:.*'|classpath 'com.android.tools.build:gradle:8.1.4'|" platforms/android/build.gradle
-        # Modifica gradle-wrapper.properties per Gradle distribution URL
-        sed -i "s|distributionUrl=https\\://services.gradle.org/distributions/gradle-.*-all.zip|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.5-all.zip|" platforms/android/gradle/wrapper/gradle-wrapper.properties
-        echo "Forzate le versioni di Android Gradle Plugin (8.1.4) e Gradle Wrapper (8.5)."
+        echo "Forzata la versione di Android Gradle Plugin (8.1.4)."
+        # Rimosso il comando per gradle-wrapper.properties per evitare l'errore "No such file or directory"
 
     - name: Inject Kotlin Resolution Strategy
       # Inietta il contenuto di build-extras.gradle all'interno del blocco 'allprojects {'
@@ -123,6 +122,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: android-apk-signed
-        # L'APK firmato avrà probabilmente un nome come app-release.apk (non unsigned)
-        # Il percorso esatto può variare, quindi usiamo un wildcard qui.
         path: TimeCalculatorApp/platforms/android/app/build/outputs/apk/release/*.apk
