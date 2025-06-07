@@ -49,6 +49,12 @@ jobs:
       # Questo step finalizza la preparazione del progetto dopo l'aggiunta della piattaforma
       run: cordova prepare android
 
+    - name: Inject Kotlin Resolution Strategy
+      # Inietta il contenuto di build-extras.gradle nel build.gradle principale della piattaforma Android
+      run: |
+        cat build-extras.gradle >> platforms/android/build.gradle
+        echo "Kotlin resolution strategy injected into platforms/android/build.gradle"
+
     - name: Build Android APK
       # Utilizza il comando standard di Cordova per la build
       run: cordova build android --release
