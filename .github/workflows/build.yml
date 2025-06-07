@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK & AAB
 
 on:
   push:
@@ -57,21 +57,35 @@ jobs:
         awk -v content="$KOTLIN_FIX_CONTENT" '/^allprojects {/ { print; print content; next }1' platforms/android/build.gradle > platforms/android/build.gradle.tmp && mv platforms/android/build.gradle.tmp platforms/android/build.gradle
         echo "Strategia di risoluzione Kotlin iniettata nel blocco allprojects in platforms/android/build.gradle."
 
-    - name: Build Android APK
-      # Utilizza il comando standard di Cordova per la build
+    - name: Build Android App Bundle (AAB)
+      # Esegue la build di rilascio per generare l'AAB (comportamento predefinito di cordova-android@12.x.x)
       run: cordova build android --release
 
-    - name: List APK output directory
-      # DEBUG: Elenca il contenuto della directory di output APK per trovare il nome esatto del file
+    - name: Create build.json for APK output
+      # Crea il file build.json per forzare la generazione di un APK
+      run: |
+        echo '{"android": {"release": {"packageType": "apk", "proguard": {}}}}' > build.json
+
+    - name: Build Android APK
+      # Esegue la build di rilascio usando il build.json per generare l'APK
+      run: cordova build android --release --buildConfig=build.json
+
+    - name: List all build outputs
+      # DEBUG: Elenca il contenuto delle directory di output per verificare i file generati
       run: |
         echo "Listing contents of platforms/android/app/build/outputs/apk/release/"
-        ls -R platforms/android/app/build/outputs/apk/release/ || true # Use ls -R for recursive listing
+        ls -R platforms/android/app/build/outputs/apk/release/ || true
         echo "Listing contents of platforms/android/app/build/outputs/bundle/release/"
-        ls -R platforms/android/app/build/outputs/bundle/release/ || true # Check for AAB as well
+        ls -R platforms/android/app/build/outputs/bundle/release/ || true
+
+    - name: Upload AAB (Android App Bundle)
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-aab
+        path: platforms/android/app/build/outputs/bundle/release/*.aab
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: android-apk
-        # Aggiornato il percorso per cercare qualsiasi file .apk nella cartella di rilascio
         path: platforms/android/app/build/outputs/apk/release/*.apk
