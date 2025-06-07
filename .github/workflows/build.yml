@@ -31,6 +31,10 @@ jobs:
      
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
+      with:
+        # Ensure build-tools 34.0.0 and platform-tools are installed
+        build-tools: '34.0.0'
+        platform-tools: true
      
     - name: Install Cordova and dependencies
       run: |
@@ -38,27 +42,21 @@ jobs:
         npm install
 
     - name: Clean Cordova Platforms and Plugins
-      # Rimuove le cartelle platforms e plugins per garantire una reinstallazione pulita
       run: rm -rf platforms plugins || true
 
     - name: Add Android Platform
-      # Aggiunge la piattaforma Android; la versione sarà dettata da package.json
       run: cordova platform add android
 
     - name: Prepare Android Project
-      # Questo step finalizza la preparazione del progetto dopo l'aggiunta della piattaforma
       run: cordova prepare android
 
     - name: Force Android Gradle Plugin version
-      # Modifica direttamente il file Gradle per forzare la versione dell'Android Gradle Plugin compatibile con Java 17 e API 34
       run: |
         # Modifica build.gradle (root) per AGP version
         sed -i "s|classpath 'com.android.tools.build:gradle:.*'|classpath 'com.android.tools.build:gradle:8.1.4'|" platforms/android/build.gradle
         echo "Forzata la versione di Android Gradle Plugin (8.1.4)."
 
     - name: Inject Kotlin Resolution Strategy
-      # Inietta il contenuto di build-extras.gradle all'interno del blocco 'allprojects {'
-      # Questo assicura che la strategia di risoluzione Kotlin si applichi globalmente
       run: |
         KOTLIN_FIX_CONTENT=$(cat build-extras.gradle | sed 's/\\/\\\\/g' | sed 's/&/\\&/g' | sed 's/$/\\n/g' | tr -d '\n')
         awk -v content="$KOTLIN_FIX_CONTENT" '/^allprojects {/ { print; print content; next }1' platforms/android/build.gradle > platforms/android/build.gradle.tmp && mv platforms/android/build.gradle.tmp platforms/android/build.gradle
@@ -66,8 +64,8 @@ jobs:
 
     - name: Create Keystore
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-      # Crea il keystore se non esiste già (solo per push su main)
       run: |
+        # Check if keystore exists before creating to avoid errors
         if [ ! -f release.keystore ]; then
           keytool -genkey -v -keystore release.keystore -alias my_app_alias -keyalg RSA -keysize 2048 -validity 10000 \
           -dname "CN=Your Name, OU=Your Org, O=Your Company, L=Your City, ST=Your State, C=Your Country" \
@@ -85,31 +83,66 @@ jobs:
         cp release.keystore platforms/android/release.keystore
         echo "Keystore copiato in platforms/android/release.keystore"
 
-    - name: Build Android App Bundle (AAB) - Default behavior
-      # Esegue la build di rilascio. Per cordova-android@12.x.x, questo dovrebbe generare l'AAB per impostazione predefinita
-      run: cordova build android --release
-
-    - name: Clean Android build outputs for APK
-      # Pulisce gli output della build APK prima di generare l'APK firmato
+    # Nuovi step per la generazione diretta con gradlew e firma esplicita
+    - name: Build AAB using gradlew
+      # Esegue direttamente il comando Gradle per generare l'AAB
       run: |
-        rm -rf platforms/android/app/build/outputs/apk || true
+        cd platforms/android
+        ./gradlew bundleRelease
+        cd ../..
+        echo "AAB generato tramite gradlew."
 
-    - name: Replace build.json placeholders
-      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-      # Sostituisce i placeholder nel build.json con i valori dei segreti
+    - name: Build Unsigned APK using gradlew
+      # Esegue direttamente il comando Gradle per generare l'APK non firmato
       run: |
-        BUILD_JSON_CONTENT=$(cat build.json)
-        # Usa '#' come delimitatore per evitare problemi con '/' o '&' nelle password
-        BUILD_JSON_CONTENT=$(echo "$BUILD_JSON_CONTENT" | sed "s#STORE_PASSWORD#${{ secrets.KEYSTORE_STORE_PASSWORD }}#g")
-        BUILD_JSON_CONTENT=$(echo "$BUILD_JSON_CONTENT" | sed "s#KEY_PASSWORD#${{ secrets.KEYSTORE_KEY_PASSWORD }}#g")
-        echo "$BUILD_JSON_CONTENT" > build.json
-        echo "Placeholder del build.json sostituiti."
+        cd platforms/android
+        ./gradlew assembleRelease
+        cd ../..
+        echo "APK non firmato generato tramite gradlew."
 
-    - name: Build Signed Android APK
-      # Esegue la build di rilascio usando il build.json per generare l'APK firmato
-      run: cordova build android --release --buildConfig=build.json
+    - name: Identify Unsigned APK path for signing
+      id: unsigned_apk_path
+      run: |
+        # Trova l'APK non firmato. Il nome è app-release-unsigned.apk
+        UNSIGNED_APK=$(find platforms/android/app/build/outputs/apk/release/ -name "app-release-unsigned.apk")
+        echo "Identified unsigned APK for signing: $UNSIGNED_APK"
+        if [ -z "$UNSIGNED_APK" ]; then
+          echo "Error: Unsigned APK not found for signing!"
+          exit 1
+        fi
+        echo "unsigned_apk_path=$UNSIGNED_APK" >> "$GITHUB_OUTPUT"
+      
+    - name: Sign APK
+      # Firma l'APK non firmato usando apksigner
+      run: |
+        APKSIGNER_PATH="${ANDROID_HOME}/build-tools/34.0.0/apksigner"
+        UNSIGNED_APK_PATH="${{ steps.unsigned_apk_path.outputs.unsigned_apk_path }}"
+        SIGNED_APK_PATH="${UNSIGNED_APK_PATH/.apk/-signed.apk}" # Creiamo un nuovo file per l'APK firmato
+        
+        "$APKSIGNER_PATH" sign --ks release.keystore \
+          --ks-key-alias my_app_alias \
+          --ks-pass pass:"${{ secrets.KEYSTORE_STORE_PASSWORD }}" \
+          --key-pass pass:"${{ secrets.KEYSTORE_KEY_PASSWORD }}" \
+          --out "$SIGNED_APK_PATH" \
+          "$UNSIGNED_APK_PATH"
+        
+        echo "APK signed successfully: $SIGNED_APK_PATH"
+        echo "signed_apk_path=$SIGNED_APK_PATH" >> "$GITHUB_OUTPUT"
+      id: sign_apk_step
 
-    - name: Find and list all build outputs
+    - name: Zipalign Signed APK
+      # Allinea l'APK firmato per ottimizzazione.
+      run: |
+        ZIPALIGN_PATH="${ANDROID_HOME}/build-tools/34.0.0/zipalign"
+        SIGNED_APK_PATH="${{ steps.sign_apk_step.outputs.signed_apk_path }}"
+        FINAL_APK_PATH="${SIGNED_APK_PATH/.apk/-final.apk}" # Nuovo nome per l'APK zipalignato
+
+        "$ZIPALIGN_PATH" -v 4 "$SIGNED_APK_PATH" "$FINAL_APK_PATH"
+        echo "APK zipaligned successfully: $FINAL_APK_PATH"
+        echo "final_apk_path=$FINAL_APK_PATH" >> "$GITHUB_OUTPUT"
+      id: zipalign_apk_step
+
+    - name: Find and list all final build outputs
       # DEBUG: Cerca e elenca ricorsivamente tutti i file .apk e .aab dalla radice del working directory
       run: |
         echo "Searching for .apk files from current working directory:"
@@ -123,8 +156,8 @@ jobs:
         name: android-aab
         path: TimeCalculatorApp/platforms/android/app/build/outputs/bundle/release/*.aab
 
-    - name: Upload Signed APK
+    - name: Upload Signed and Zipaligned APK
       uses: actions/upload-artifact@v4
       with:
-        name: android-apk-signed
-        path: TimeCalculatorApp/platforms/android/app/build/outputs/apk/release/*.apk
+        name: android-apk-signed-zipaligned
+        path: ${{ steps.zipalign_apk_step.outputs.final_apk_path }}
