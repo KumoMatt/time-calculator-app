@@ -50,9 +50,23 @@ jobs:
     - name: Prepare Android Project
       run: cordova prepare android
 
-    # Rimosso lo step separato "Make gradlew executable"
-    # - name: Make gradlew executable
-    #   run: chmod +x platforms/android/gradlew
+    - name: Ensure gradlew exists and is executable
+      run: |
+        # Change to the Android platform directory
+        cd platforms/android
+        # Check if gradlew exists, if not, try to generate it
+        if [ ! -f gradlew ]; then
+            echo "gradlew not found. Attempting to generate Gradle wrapper..."
+            # This command typically creates gradlew and gradle/wrapper
+            # Ensure Gradle is in PATH for this to work, which it should be from setup-android
+            gradle wrapper --gradle-version 8.5 # Explicitly set a version known to be compatible
+            echo "Gradle wrapper generation attempted."
+        fi
+        # Make gradlew executable in case it was just generated or wasn't executable
+        chmod +x ./gradlew
+        echo "gradlew is now executable."
+        # Return to the main working directory
+        cd ../..
 
     - name: Force Android Gradle Plugin version
       run: |
@@ -92,8 +106,6 @@ jobs:
       # Esegue direttamente il comando Gradle per generare l'AAB
       run: |
         cd platforms/android
-        ls -l # DEBUG: Mostra i file nella directory
-        chmod +x ./gradlew # Rende gradlew eseguibile proprio prima dell'uso
         ./gradlew bundleRelease
         cd ../..
         echo "AAB generato tramite gradlew."
@@ -102,8 +114,6 @@ jobs:
       # Esegue direttamente il comando Gradle per generare l'APK non firmato
       run: |
         cd platforms/android
-        ls -l # DEBUG: Mostra i file nella directory
-        chmod +x ./gradlew # Rende gradlew eseguibile proprio prima dell'uso
         ./gradlew assembleRelease
         cd ../..
         echo "APK non firmato generato tramite gradlew."
