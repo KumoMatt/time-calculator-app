@@ -65,7 +65,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: android-apk
-        # Aggiornato il percorso per cercare app-release.apk, che è più comune per le build di rilascio
-        path: platforms/android/app/build/outputs/apk/release/app-release.apk
-        # Se l'APK ha un altro nome (es. app-release-unsigned.apk o con la versione SDK),
-        # potremmo dover ispezionare il log di build per il nome esatto o usare un wildcard.
+        # Aggiornato il percorso per cercare qualsiasi file .apk nella cartella di rilascio
+        path: platforms/android/app/build/outputs/apk/release/*.apk
