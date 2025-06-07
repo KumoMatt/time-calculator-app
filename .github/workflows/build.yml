@@ -61,6 +61,14 @@ jobs:
       # Utilizza il comando standard di Cordova per la build
       run: cordova build android --release
 
+    - name: List APK output directory
+      # DEBUG: Elenca il contenuto della directory di output APK per trovare il nome esatto del file
+      run: |
+        echo "Listing contents of platforms/android/app/build/outputs/apk/release/"
+        ls -R platforms/android/app/build/outputs/apk/release/ || true # Use ls -R for recursive listing
+        echo "Listing contents of platforms/android/app/build/outputs/bundle/release/"
+        ls -R platforms/android/app/build/outputs/bundle/release/ || true # Check for AAB as well
+
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
