@@ -83,15 +83,15 @@ jobs:
     - name: Create Keystore
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       run: |
-        # Check if keystore exists before creating to avoid errors
-        if [ ! -f release.keystore ]; then
-          keytool -genkey -v -keystore release.keystore -alias my_app_alias -keyalg RSA -keysize 2048 -validity 10000 \
-          -dname "CN=Your Name, OU=Your Org, O=Your Company, L=Your City, ST=Your State, C=Your Country" \
-          -storepass "${{ secrets.KEYSTORE_STORE_PASSWORD }}" -keypass "${{ secrets.KEYSTORE_KEY_PASSWORD }}"
-          echo "Keystore generato in release.keystore"
-        else
-          echo "Keystore release.keystore già esistente."
+        # Rimuove il keystore esistente per garantire una nuova generazione pulita
+        if [ -f release.keystore ]; then
+          echo "Eliminazione del keystore esistente per rigenerazione..."
+          rm release.keystore
         fi
+        keytool -genkey -v -keystore release.keystore -alias my_app_alias -keyalg RSA -keysize 2048 -validity 10000 \
+        -dname "CN=Your Name, OU=Your Org, O=Your Company, L=Your City, ST=Your State, C=Your Country" \
+        -storepass "${{ secrets.KEYSTORE_STORE_PASSWORD }}" -keypass "${{ secrets.KEYSTORE_KEY_PASSWORD }}"
+        echo "Keystore generato in release.keystore"
 
     - name: Copy Keystore to Android Platform
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
