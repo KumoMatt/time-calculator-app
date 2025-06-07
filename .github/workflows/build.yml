@@ -157,7 +157,7 @@ jobs:
 
         "$ZIPALIGN_PATH" -v 4 "$SIGNED_APK_PATH" "$FINAL_APK_PATH"
         echo "APK zipaligned successfully: $FINAL_APK_PATH"
-        echo "final_apk_path=$FINAL_APK_PATH" >> "$GITHUB_OUTPUT"
+        echo "final_apk_path=TimeCalculatorApp/$FINAL_APK_PATH" >> "$GITHUB_OUTPUT" # Aggiunto il prefisso TimeCalculatorApp/
       id: zipalign_apk_step
 
     - name: Find and list all final build outputs
@@ -172,7 +172,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: android-aab
-        path: TimeCalculatorApp/platforms/android/app/build/outputs/bundle/release/*.aab
+        path: TimeCalculatorApp/platforms/android/app/build/outputs/bundle/release/*.aab # Mantenuto il percorso con wildcard
 
     - name: Upload Signed and Zipaligned APK
       uses: actions/upload-artifact@v4
