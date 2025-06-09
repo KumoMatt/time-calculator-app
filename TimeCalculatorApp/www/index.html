@@ -1,551 +1,1354 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calcolatrice Orari</title>
+    <title>Time Manager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* === DEFINIZIONE VARIABILI CSS PER TEMI E PALETTE DINAMICI === */
+        :root {
+            --body-bg: #f9f9f9;
+            --container-bg: #ffffff;
+            --main-text-color: #212121;
+            --app-title-color: #0D47A1;
+            --list-bg: #ffffff;
+            --list-text-color: #212121;
+            --results-header-bg: #E8F5FF;
+            --results-header-text-color: #212121;
+            --results-footer-bg: #0D47A1;
+            --results-footer-text-color: #ffffff;
+            --highlight-color: #FF0000;
+            --tab-button-inactive-bg: #e0e0e0;
+            --tab-button-inactive-text: #424242;
+            --tab-button-active-bg: #ffffff;
+            --tab-button-active-text: #0D47A1;
+            --border-color: #e0e0e0;
+            --input-bg: #ffffff;
+            --input-text: #212121;
+            --input-placeholder: #757575;
+            --input-focus-border: #2196f3;
+            --button-primary-bg: #1976D2;
+            --button-primary-text: #ffffff;
+            --button-secondary-bg: #2196F3;
+            --button-secondary-text: #ffffff;
+            --button-danger-bg: #F44336;
+            --button-danger-text: #ffffff;
+            --button-warning-bg: #FFC107;
+            --button-warning-text: #212121;
+            --button-gray-bg: #E0E0E0;
+            --button-gray-text: #212121;
+
+            /* Gradient for detailed activity card in light mode */
+            --detailed-card-gradient-start: #2196F3; /* Blue 500 */
+            --detailed-card-gradient-end: #1976D2;   /* Blue 700 */
+            --detailed-card-border: #1976D2;
+            --detailed-card-text: #ffffff;
+            --detailed-card-shadow: rgba(33, 150, 243, 0.25);
         }
 
+        .dark {
+            --body-bg: #1a1a1a;
+            --container-bg: #262626;
+            --main-text-color: #e0e0e0;
+            --app-title-color: #64B5F6;
+            --list-bg: #333333;
+            --list-text-color: #e0e0e0;
+            --results-header-bg: #0D47A1;
+            --results-header-text-color: #E3F2FD;
+            --results-footer-bg: #0D47A1;
+            --results-footer-text-color: #ffffff;
+            --highlight-color: #FF0000;
+            --tab-button-inactive-bg: #333333;
+            --tab-button-inactive-text: #9e9e9e;
+            --tab-button-active-bg: #212121;
+            --tab-button-active-text: #64B5F6;
+            --border-color: #424242;
+            --input-bg: #212121;
+            --input-text: #e0e0e0;
+            --input-placeholder: #9e9e9e;
+            --input-focus-border: #90caf9;
+            --button-primary-bg: #1565C0;
+            --button-primary-text: #ffffff;
+            --button-secondary-bg: #1976D2;
+            --button-secondary-text: #ffffff;
+            --button-danger-bg: #D32F2F;
+            --button-danger-text: #ffffff;
+            --button-warning-bg: #FFA000;
+            --button-warning-text: #212121;
+            --button-gray-bg: #616161;
+            --button-gray-text: #e0e0e0;
+
+            /* Gradient for detailed activity card in dark mode */
+            --detailed-card-gradient-start: #64B5F6; /* Blue 300 */
+            --detailed-card-gradient-end: #42A5F5;   /* Blue 400 */
+            --detailed-card-border: #90CAF9;
+            --detailed-card-text: #212121;
+            --detailed-card-shadow: rgba(100, 181, 246, 0.25);
+        }
+
+        /* === STILI GENERALI CON VARIABILI CSS === */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--body-bg);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            color: var(--main-text-color);
         }
 
         .container {
-            max-width: 400px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Using fixed shadow for simplicity */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .dark .container {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Using fixed shadow for simplicity */
         }
 
-        h1 {
-            text-align: center;
-            color: #4a5568;
-            margin-bottom: 30px;
-            font-size: 24px;
+        #app-title {
+            color: var(--app-title-color);
+            transition: color 0.3s ease;
+        }
+
+        #language-selector {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        .dark #language-selector {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border-color: var(--border-color);
+        }
+
+        #theme-toggle-btn, .language-selector-icon, #palette-toggle-btn {
+            color: var(--main-text-color); /* General icon color */
+            transition: color 0.3s ease;
+        }
+
+        /* Scrollbar */
+        .activity-list-container::-webkit-scrollbar-track { background: var(--border-color); border-radius: 10px; }
+        .activity-list-container::-webkit-scrollbar-thumb { background: var(--main-text-color); opacity: 0.5; border-radius: 10px; }
+        .activity-list-container::-webkit-scrollbar { width: 8px; }
+
+        /* Tabs */
+        .tabs-header {
+            border-bottom: 1px solid var(--border-color);
+        }
+        .tab-button {
+            background-color: var(--tab-button-inactive-bg);
+            color: var(--tab-button-inactive-text);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+        }
+        .tab-button.active {
+            background-color: var(--tab-button-active-bg);
+            color: var(--tab-button-active-text);
+            border-color: var(--border-color);
+            border-bottom-color: var(--tab-button-active-bg);
+        }
+        .tab-button:hover:not(.active) {
+            background-color: color-mix(in srgb, var(--tab-button-inactive-bg) 90%, black); /* Lighter/darker version of inactive bg */
+            color: var(--tab-button-active-text); /* Active text color for hover */
+        }
+        .tabs-content-container {
+            background-color: var(--tab-button-active-bg);
+            border: 1px solid var(--border-color);
+            border-top: none;
+        }
+
+        /* Input Card and Labels */
+        .sequence-input-card {
+            background-color: var(--body-bg); /* Use body-bg for card bg */
+            border: 1px solid var(--border-color);
+        }
+        .sequence-input-card label {
+            color: var(--main-text-color);
+        }
+
+        /* Input Fields */
+        input {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border: 1px solid var(--border-color);
+        }
+        input::placeholder {
+            color: var(--input-placeholder);
+        }
+        input:focus {
+            border-color: var(--input-focus-border);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--input-focus-border) 20%, transparent);
+        }
+        
+        /* Renamable Sequence Name */
+        h2[contenteditable="true"] {
+            color: var(--app-title-color);
+        }
+        h2[contenteditable="true"]:focus {
+            border-color: var(--input-focus-border); /* Adjust focus border for h2 */
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--input-focus-border) 30%, transparent);
+        }
+
+        /* Buttons (using Tailwind classes, but override if needed) */
+        .btn { 
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
             font-weight: 600;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #4a5568;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        input[type="time"], input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 16px;
-            background: #f8fafc;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-
-        input[type="time"]:focus, input[type="text"]:focus, input[type="number"]:focus {
-            border-color: #667eea;
-            background: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
-        }
-
-        .activity-item {
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .activity-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            border-color: #667eea;
-        }
-
-        .activity-header {
-            display: flex;
-            justify-content: space-between;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: inline-flex;
             align-items: center;
-            margin-bottom: 15px;
+            justify-content: center;
+            color: #ffffff; /* Default white text for colored buttons */
+        }
+        .btn:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.15); transform: translateY(-1px); }
+        .bg-green-500 { background-color: #4CAF50; } 
+        .bg-green-500:hover { background-color: #43A047; }
+        .bg-blue-500 { background-color: var(--button-secondary-bg); } 
+        .bg-blue-500:hover { background-color: color-mix(in srgb, var(--button-secondary-bg) 80%, black); }
+        .bg-indigo-500 { background-color: var(--button-primary-bg); } 
+        .bg-indigo-500:hover { background-color: color-mix(in srgb, var(--button-primary-bg) 80%, black); }
+        .bg-red-500 { background-color: var(--button-danger-bg); } 
+        .bg-red-500:hover { background-color: color-mix(in srgb, var(--button-danger-bg) 80%, black); }
+        .bg-yellow-500 { background-color: var(--button-warning-bg); color: var(--button-warning-text); } 
+        .bg-yellow-500:hover { background-color: color-mix(in srgb, var(--button-warning-bg) 80%, black); }
+        .bg-gray-300 { background-color: var(--button-gray-bg); color: var(--button-gray-text); } 
+        .bg-gray-300:hover { background-color: color-mix(in srgb, var(--button-gray-bg) 80%, black); }
+
+        /* Results Section */
+        .results-section {
+            background-color: var(--body-bg); /* Use body-bg for results section */
+            border: 1px solid var(--border-color);
+            padding: 1.5rem; /* Ensure original padding */
+            border-radius: 0.75rem; /* Ensure original rounded corners */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Ensure original shadow */
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .dark .results-section {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* Dark mode shadow */
         }
 
-        .activity-inputs {
-            display: grid;
-            grid-template-columns: 1fr 100px;
-            gap: 10px;
-            align-items: end;
+        .results-section h3, .results-section h4 {
+            color: var(--app-title-color); /* Primary color for titles */
+        }
+        .results-section strong {
+            color: var(--main-text-color) !important;
         }
 
-        .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
+        .results-header {
+            background-color: var(--results-header-bg);
+            color: var(--results-header-text-color);
+            border: 1px solid color-mix(in srgb, var(--results-header-bg) 80%, black); /* Slightly darker border */
+            padding: 1.25rem; /* Revert to previous padding */
+            border-radius: 0.625rem; /* Revert to previous border-radius */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Revert to fixed shadow */
+            margin-bottom: 1rem;
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        }
+        .dark .results-header {
+            box-shadow: 0 6px 12px rgba(0,0,0,0.25); /* Revert to fixed shadow */
+        }
+        .results-header i {
+            color: var(--app-title-color); /* Icon matches app title */
+            transition: color 0.3s ease; /* Ensure transition is there */
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .detailed-activity-card {
+            background: linear-gradient(145deg, var(--detailed-card-gradient-start), var(--detailed-card-gradient-end));
+            box-shadow: 0 5px 15px var(--detailed-card-shadow);
+            border: 1px solid var(--detailed-card-border);
+            color: var(--detailed-card-text) !important; /* Ensure text color is set by variable */
+            padding: 1rem 1.25rem; /* Keep this as it's from the latest fix */
+            border-radius: 0.75rem; /* Keep this as it's from the latest fix */
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem; /* Keep this as it's from the latest fix */
+            transition: all 0.3s ease;
+        }
+        .dark .detailed-activity-card {
+            box-shadow: 0 5px 15px var(--detailed-card-shadow); /* Keep 15px for dark mode consistency */
+            border-color: var(--detailed-card-border);
+            color: var(--detailed-card-text) !important;
+        }
+        .detailed-activity-card p,
+        .detailed-activity-card span,
+        .detailed-activity-card i {
+            color: inherit !important; /* Inherit from parent detailed-activity-card */
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-
-        .btn-secondary:hover {
-            background: #cbd5e0;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: #f56565;
-            color: white;
-            padding: 8px 12px;
-            font-size: 12px;
-        }
-
-        .btn-danger:hover {
-            background: #e53e3e;
-            transform: translateY(-2px);
-        }
-
-        .btn-notification {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            color: white;
-            margin-top: 10px;
-            width: 100%;
-        }
-
-        .btn-notification:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
-        }
-
-        .btn-notification:disabled {
-            background: #a0aec0;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .result {
-            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 20px 0;
+        .results-footer-summary {
+            background-color: var(--results-footer-bg);
+            color: var(--results-footer-text-color);
+            padding: 1.25rem; /* Revert to previous padding */
+            border-radius: 0.625rem; /* Revert to previous border-radius */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Revert to fixed shadow */
+            margin-top: 1rem;
             text-align: center;
-            font-size: 18px;
-            font-weight: 600;
-            box-shadow: 0 8px 25px rgba(66, 153, 225, 0.3);
+            transition: all 0.3s ease;
+        }
+        .dark .results-footer-summary {
+            box-shadow: 0 6px 15px rgba(0,0,0,0.25); /* Revert to fixed shadow */
+        }
+        .results-footer-summary i {
+            color: var(--app-title-color); /* Icon matches app title, matches previous style */
+            transition: color 0.3s ease; /* Ensure transition is there */
+        }
+        
+        .icon-text-group {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+        .icon-text-group i { 
+            width: 22px;
+            text-align: center;
         }
 
-        .add-activity {
-            width: 100%;
-            margin: 20px 0;
+        /* Activity List */
+        .activity-list li {
+            background-color: var(--container-bg); /* List item background */
+            border: 1px solid var(--border-color);
+            color: var(--main-text-color); /* Ensure text color respects theme */
+            padding: 0.75rem 1rem; /* Revert to previous padding */
+            border-radius: 0.625rem; /* Revert to previous border-radius */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Revert to fixed shadow */
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+        .activity-list li span { 
+            color: var(--main-text-color) !important;
         }
 
-        .notification-info {
-            background: #e6fffa;
-            border: 2px solid #81e6d9;
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 10px;
-            color: #285e61;
-            font-size: 14px;
-            display: none;
+        /* Specific styles for "Activities List:" title */
+        .activity-list-container h3 { 
+            color: var(--main-text-color) !important;
         }
 
-        .notification-info.show {
-            display: block;
-            animation: fadeIn 0.3s ease;
+        /* Specific styles for numeric time/date in results footer */
+        .results-footer-summary strong {
+            color: var(--highlight-color) !important;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Confirmation Modal Buttons */
+        #modal-buttons-container .btn {
+            min-width: 80px;
         }
 
-        .remove-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
+        /* === MODALE SELEZIONE PALETTE === */
+        #palette-modal {
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 100; /* Above other modals */
+        }
+        #palette-modal-content {
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+            max-width: 90%;
+        }
+        .dark #palette-modal-content {
+            background-color: var(--container-bg); /* Use dark container bg */
         }
 
-        @media (max-width: 480px) {
-            .container {
-                margin: 10px;
-                padding: 20px;
-            }
-            
-            .activity-inputs {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
+        .palette-card {
+            background-color: var(--body-bg); /* Background for each palette choice */
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .dark .palette-card {
+             background-color: var(--container-bg);
+        }
+
+        .palette-card.selected {
+            border-color: var(--app-title-color); /* Highlight selected palette */
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-title-color) 40%, transparent);
+        }
+        .palette-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+        .palette-card-preview {
+            display: flex;
+            gap: 4px;
+        }
+        .palette-color-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.1); /* Subtle border for circles */
+        }
+        .dark .palette-color-circle {
+             border: 1px solid rgba(255,255,255,0.1);
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>⏰ Calcolatrice Orari</h1>
-        
-        <div class="input-group">
-            <label for="startTime">Orario di Partenza</label>
-            <input type="time" id="startTime" value="09:00">
-        </div>
+<body class="min-h-screen flex flex-col items-center py-4">
 
-        <div id="activities">
-            <div class="activity-item">
-                <div class="activity-header">
-                    <h3>Attività 1</h3>
-                    <button class="btn btn-danger remove-btn" onclick="removeActivity(this)" style="display: none;">✕</button>
-                </div>
-                <div class="activity-inputs">
-                    <input type="text" placeholder="Nome attività" class="activity-name" value="Riunione">
-                    <input type="number" placeholder="Min" class="activity-duration" value="60" min="1" max="1440">
-                </div>
-                <button class="btn btn-notification" onclick="setNotification(this)">
-                    🔔 Notifica 10 min prima
+    <div class="container py-6"> <!-- Adjusted padding here for main title -->
+        <div class="flex items-center justify-between mb-6">
+            <!-- Left side: Palette Toggle -->
+            <button id="palette-toggle-btn" class="text-2xl transition duration-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700">
+                <i class="fas fa-palette"></i>
+            </button>
+
+            <!-- Center: App Title -->
+            <h1 class="text-3xl font-bold flex-grow text-center" id="app-title">Time Manager</h1>
+
+            <!-- Right side: Theme Toggle & Language Selector -->
+            <div class="flex items-center space-x-3">
+                <button id="theme-toggle-btn" class="text-2xl transition duration-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700">
+                    <i class="fas fa-moon" id="theme-icon"></i>
                 </button>
-                <div class="notification-info">
-                    <strong>Notifica impostata!</strong><br>
-                    <span class="notification-details"></span>
+                <div class="relative">
+                    <select id="language-selector" class="block appearance-none px-4 py-2 pr-8 rounded-lg shadow-sm leading-tight focus:outline-none">
+                        <option value="en">English</option>
+                        <option value="it">Italiano</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 language-selector-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <button class="btn btn-secondary add-activity" onclick="addActivity()">
-            ➕ Aggiungi Attività
-        </button>
-
-        <button class="btn btn-primary" onclick="calculate()" style="width: 100%; margin: 20px 0;">
-            🧮 Calcola
-        </button>
-
-        <div id="result" class="result" style="display: none;"></div>
+        <div id="main-content-area" class="flex flex-col h-full">
+            <div id="tabs-header" class="flex overflow-x-auto whitespace-nowrap">
+                <!-- Tabs will be dynamically inserted here -->
+            </div>
+            <div id="tabs-content" class="flex-grow tabs-content-container">
+                <!-- Content of the active sequence will be rendered here -->
+            </div>
+            <button id="add-sequence-btn" class="btn w-full bg-green-500 text-white py-3 rounded-t-none rounded-b-lg text-lg font-semibold mt-0">
+                <i class="fas fa-plus-circle mr-2"></i> <span id="add-sequence-text">Add New Sequence</span>
+            </button>
+        </div>
     </div>
 
-    <script>
-        let activityCount = 1;
-        let notifications = [];
+    <!-- Modal -->
+    <div id="message-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden z-50">
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-lg shadow-lg text-center w-80">
+            <h2 class="text-xl font-bold mb-4 text-indigo-600 dark:text-indigo-400" id="modal-title"></h2>
+            <p class="mb-6 text-slate-700 dark:text-slate-200" id="modal-message"></p>
+            <div id="modal-buttons-container" class="flex justify-center mt-4 space-x-4"></div>
+        </div>
+    </div>
 
-        function addActivity() {
-            activityCount++;
-            const activitiesContainer = document.getElementById('activities');
-            
-            const activityDiv = document.createElement('div');
-            activityDiv.className = 'activity-item';
-            activityDiv.innerHTML = `
-                <div class="activity-header">
-                    <h3>Attività ${activityCount}</h3>
-                    <button class="btn btn-danger remove-btn" onclick="removeActivity(this)">✕</button>
-                </div>
-                <div class="activity-inputs">
-                    <input type="text" placeholder="Nome attività" class="activity-name">
-                    <input type="number" placeholder="Min" class="activity-duration" min="1" max="1440">
-                </div>
-                <button class="btn btn-notification" onclick="setNotification(this)">
-                    🔔 Notifica 10 min prima
+    <!-- Modale per la selezione delle Palette -->
+    <div id="palette-modal" class="fixed inset-0 hidden items-center justify-center p-4">
+        <div id="palette-modal-content" class="rounded-lg p-6 max-w-2xl w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-center flex-grow" id="select-palette-title">Seleziona Palette Colori</h2>
+                <button id="close-palette-modal" class="text-2xl text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                    <i class="fas fa-times-circle"></i>
                 </button>
-                <div class="notification-info">
-                    <strong>Notifica impostata!</strong><br>
-                    <span class="notification-details"></span>
-                </div>
-            `;
-            
-            activitiesContainer.appendChild(activityDiv);
-            updateRemoveButtons();
-            
-            // Animazione di entrata
-            setTimeout(() => {
-                activityDiv.style.opacity = '1';
-                activityDiv.style.transform = 'translateY(0)';
-            }, 10);
+            </div>
+            <div id="palettes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Palette cards will be injected here by JS -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Cordova is ready
+        document.addEventListener("deviceready", onDeviceReady, false);
+
+        function onDeviceReady() {
+            console.log("Cordova is ready!");
+            // Initialize the app after device is ready
+            app.init();
         }
 
-        function removeActivity(button) {
-            const activityItem = button.closest('.activity-item');
-            activityItem.style.transform = 'translateX(100%)';
-            activityItem.style.opacity = '0';
-            
-            setTimeout(() => {
-                activityItem.remove();
-                updateRemoveButtons();
-                renumberActivities();
-            }, 300);
-        }
-
-        function updateRemoveButtons() {
-            const activities = document.querySelectorAll('.activity-item');
-            activities.forEach(activity => {
-                const removeBtn = activity.querySelector('.remove-btn');
-                removeBtn.style.display = activities.length > 1 ? 'block' : 'none';
-            });
-        }
-
-        function renumberActivities() {
-            const activities = document.querySelectorAll('.activity-item');
-            activities.forEach((activity, index) => {
-                const header = activity.querySelector('h3');
-                header.textContent = `Attività ${index + 1}`;
-            });
-            activityCount = activities.length;
-        }
-
-        function calculate() {
-            const startTimeInput = document.getElementById('startTime');
-            const activities = document.querySelectorAll('.activity-item');
-            
-            if (!startTimeInput.value) {
-                alert('Inserisci l\'orario di partenza!');
-                return;
-            }
-
-            let startTime = new Date();
-            const [hours, minutes] = startTimeInput.value.split(':');
-            startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-            
-            let currentTime = new Date(startTime);
-            let results = [];
-            let hasValidActivities = false;
-
-            activities.forEach((activity, index) => {
-                const name = activity.querySelector('.activity-name').value;
-                const duration = parseInt(activity.querySelector('.activity-duration').value);
-                
-                if (name && duration && duration > 0) {
-                    hasValidActivities = true;
-                    currentTime.setMinutes(currentTime.getMinutes() + duration);
-                    
-                    const endTime = currentTime.toTimeString().substring(0, 5);
-                    results.push({
-                        name: name,
-                        duration: duration,
-                        endTime: endTime
-                    });
+        const app = {
+            // All translations
+            translations: {
+                en: {
+                    appName: "Time Manager", addSequence: "Add New Sequence", backToSequences: "Back to Sequences", sequenceTitle: "Sequence", openSequence: "Open", startDate: "Start Date and Time", activityName: "Activity Name", duration: "Duration", hours: "Hours", minutes: "Minutes", addActivity: "Add Activity", calculate: "Calculate", activitiesList: "Activities List", activity: "Activity", endsAt: "Ends at", totalTime: "Total time", allActivitiesEnd: "All activities end", detailedSchedule: "Detailed Schedule", setNotifications: "Set Notifications", notificationsSet: "Notifications Set!", disableNotifications: "Disable Notifications", noNotifications: "No notifications set for this sequence.", modalTitleSuccess: "Success", modalTitleError: "Error", modalMessageGenericError: "An error occurred. Please try again.", modalMessageNotificationsDisabled: "Notifications for this sequence have been disabled.", modalMessageNotificationsNotSupported: "Notifications are not supported on this device.", modalMessageNoActivities: "Please add activities before calculating.", modalMessageInvalidInput: "Please fill in all fields with valid numbers.", deleteActivity: "Delete Activity", deleteSequence: "Delete Sequence", deleteActivityConfirm: "Are you sure you want to delete this activity?", deleteSequenceConfirm: "Are you sure you want to delete this sequence?", confirmYes: "Yes", confirmNo: "No", startsAt: "Starts at", sequenceStarts: "Sequence Starts", selectPaletteTitle: "Select Color Palette"
+                },
+                it: {
+                    appName: "Time Manager", addSequence: "Aggiungi Nuova Sequenza", backToSequences: "Torna a Sequenze", sequenceTitle: "Sequenza", openSequence: "Apri", startDate: "Data e Ora Inizio", activityName: "Nome Attività", duration: "Durata", hours: "Ore", minutes: "Minuti", addActivity: "Aggiungi Attività", calculate: "Calcola", activitiesList: "Lista Attività", activity: "Attività", endsAt: "Termina alle", totalTime: "Tempo totale", allActivitiesEnd: "Fine attività alle", detailedSchedule: "Programma Dettagliato", setNotifications: "Imposta Notifiche", notificationsSet: "Notifiche Impostate!", disableNotifications: "Disattiva Notifiche", noNotifications: "Nessuna notifica impostata per questa sequenza.", modalTitleSuccess: "Successo", modalTitleError: "Errore", modalMessageGenericError: "Si è verificato un errore. Riprova.", modalMessageNotificationsDisabled: "Le notifiche per questa sequenza sono state disattivate.", modalMessageNotificationsNotSupported: "Le notifiche non sono supportate su questo dispositivo.", modalMessageNoActivities: "Aggiungi attività prima di calcolare.", modalMessageInvalidInput: "Compila tutti i campi con numeri validi.", deleteActivity: "Elimina Attività", deleteSequence: "Elimina Sequenza", deleteActivityConfirm: "Sei sicuro di voler eliminare questa attività?", deleteSequenceConfirm: "Sei sicuro di voler eliminare questa sequenza?", confirmYes: "Sì", confirmNo: "No", startsAt: "Inizia alle", sequenceStarts: "La sequenza inizia", selectPaletteTitle: "Seleziona Palette Colori"
                 }
-            });
+            },
+            currentLang: 'en',
+            currentTheme: localStorage.getItem('theme') || 'light',
+            currentPalette: localStorage.getItem('currentPalette') || 'Standard', // Nuova variabile per la palette
+            sequences: JSON.parse(localStorage.getItem('timeManagerSequences')) || [],
+            nextSequenceId: 0, 
+            activeSequenceId: null, 
 
-            if (!hasValidActivities) {
-                alert('Inserisci almeno un\'attività valida con nome e durata!');
-                return;
-            }
+            // Definizioni delle palette di colori
+            palettes: {
+                "Standard": { /* Renamed from "Currant" to "Standard" */
+                    light: {
+                        bodyBg: '#f9f9f9', containerBg: '#ffffff', mainText: '#212121', appTitle: '#0D47A1', listBg: '#ffffff', listText: '#212121', resultsHeaderBg: '#E8F5FF', resultsHeaderText: '#212121', resultsFooterBg: '#0D47A1', resultsFooterText: '#ffffff', highlightColor: '#FF0000', tabButtonInactiveBg: '#e0e0e0', tabButtonInactiveText: '#424242', tabButtonActiveBg: '#ffffff', tabButtonActiveText: '#0D47A1', borderColor: '#e0e0e0', inputBg: '#ffffff', inputText: '#212121', inputPlaceholder: '#757575', inputFocusBorder: '#2196f3', buttonPrimaryBg: '#1976D2', buttonPrimaryText: '#ffffff', buttonSecondaryBg: '#2196F3', buttonSecondaryText: '#ffffff', buttonDangerBg: '#F44336', buttonDangerText: '#ffffff', buttonWarningBg: '#FFC107', buttonWarningText: '#212121', buttonGrayBg: '#E0E0E0', buttonGrayText: '#212121',
+                        detailedCardGradientStart: '#2196F3', detailedCardGradientEnd: '#1976D2', detailedCardBorder: '#1976D2', detailedCardText: '#ffffff', detailedCardShadow: 'rgba(33, 150, 243, 0.25)'
+                    },
+                    dark: {
+                        bodyBg: '#1a1a1a', containerBg: '#262626', mainText: '#e0e0e0', appTitle: '#64B5F6', listBg: '#333333', listText: '#e0e0e0', resultsHeaderBg: '#0D47A1', resultsHeaderText: '#E3F2FD', resultsFooterBg: '#0D47A1', resultsFooterText: '#ffffff', highlightColor: '#FF0000', tabButtonInactiveBg: '#333333', tabButtonInactiveText: '#9e9e9e', tabButtonActiveBg: '#212121', tabButtonActiveText: '#64B5F6', borderColor: '#424242', inputBg: '#212121', inputText: '#e0e0e0', inputPlaceholder: '#9e9e9e', inputFocusBorder: '#90caf9', buttonPrimaryBg: '#1565C0', buttonPrimaryText: '#ffffff', buttonSecondaryBg: '#1976D2', buttonSecondaryText: '#ffffff', buttonDangerBg: '#D32F2F', buttonDangerText: '#ffffff', buttonWarningBg: '#FFA000', buttonWarningText: '#212121', buttonGrayBg: '#616161', buttonGrayText: '#e0e0e0',
+                        detailedCardGradientStart: '#64B5F6', detailedCardGradientEnd: '#42A5F5', detailedCardBorder: '#90CAF9', detailedCardText: '#212121', detailedCardShadow: 'rgba(100, 181, 246, 0.25)'
+                    },
+                    previewColors: ['#0D47A1', '#4CAF50', '#FFC107', '#F44336', '#2196F3']
+                },
+                "Costiero": {
+                    light: {
+                        bodyBg: '#E0F2F7', containerBg: '#F0F8FF', mainText: '#263238', appTitle: '#00796B', listBg: '#E8F5E9', listText: '#263238', resultsHeaderBg: '#B2EBF2', resultsHeaderText: '#004D40', resultsFooterBg: '#006064', resultsFooterText: '#ffffff', highlightColor: '#D32F2F', tabButtonInactiveBg: '#E0F2F7', tabButtonInactiveText: '#263238', tabButtonActiveBg: '#F0F8FF', tabButtonActiveText: '#00796B', borderColor: '#B2EBF2', inputBg: '#FFFFFF', inputText: '#263238', inputPlaceholder: '#607D8B', inputFocusBorder: '#00BCD4', buttonPrimaryBg: '#0097A7', buttonPrimaryText: '#ffffff', buttonSecondaryBg: '#00BCD4', buttonSecondaryText: '#ffffff', buttonDangerBg: '#D32F2F', buttonDangerText: '#ffffff', buttonWarningBg: '#FFAB00', buttonWarningText: '#212121', buttonGrayBg: '#CFD8DC', buttonGrayText: '#263238',
+                        detailedCardGradientStart: '#00BCD4', detailedCardGradientEnd: '#00ACC1', detailedCardBorder: '#0097A7', detailedCardText: '#ffffff', detailedCardShadow: 'rgba(0, 188, 212, 0.25)'
+                    },
+                    dark: {
+                        bodyBg: '#004D40', containerBg: '#00362E', mainText: '#E0F2F7', appTitle: '#80CBC4', listBg: '#00574B', listText: '#E0F2F7', resultsHeaderBg: '#00695C', resultsHeaderText: '#B2DFDB', resultsFooterBg: '#004D40', resultsFooterText: '#ffffff', highlightColor: '#FF8A80', tabButtonInactiveBg: '#00574B', tabButtonInactiveText: '#80CBC4', tabButtonActiveBg: '#00362E', tabButtonActiveText: '#80CBC4', borderColor: '#00695C', inputBg: '#00362E', inputText: '#E0F2F7', inputPlaceholder: '#80CBC4', inputFocusBorder: '#80DEEA', buttonPrimaryBg: '#00796B', buttonPrimaryText: '#ffffff', buttonSecondaryBg: '#00838F', buttonSecondaryText: '#ffffff', buttonDangerBg: '#FF8A80', buttonDangerText: '#212121', buttonWarningBg: '#FFD740', buttonWarningText: '#212121', buttonGrayBg: '#455A64', buttonGrayText: '#E0F2F7',
+                        detailedCardGradientStart: '#80DEEA', detailedCardGradientEnd: '#4DD0E1', detailedCardBorder: '#80CBC4', detailedCardText: '#212121', detailedCardShadow: 'rgba(128, 222, 234, 0.25)'
+                    },
+                    previewColors: ['#42A5F5', '#81C784', '#FFB74D', '#E57373', '#29B6F6'] // Original preview colors
+                },
+                "Montano": {
+                    light: {
+                        bodyBg: '#F5F5DC', containerBg: '#FFFFFF', mainText: '#3E2723', appTitle: '#5D4037', listBg: '#FCE4EC', listText: '#3E2723', resultsHeaderBg: '#D7CCC8', resultsHeaderText: '#3E2723', resultsFooterBg: '#4E342E', resultsFooterText: '#ffffff', highlightColor: '#D84315', tabButtonInactiveBg: '#D7CCC8', tabButtonInactiveText: '#3E2723', tabButtonActiveBg: '#FFFFFF', tabButtonActiveText: '#5D4037', borderColor: '#BCAAA4', inputBg: '#FFFFFF', inputText: '#3E2723', inputPlaceholder: '#795548', inputFocusBorder: '#8D6E63', buttonPrimaryBg: '#6D4C41', buttonPrimaryText: '#ffffff', buttonSecondaryBg: '#8D6E63', buttonSecondaryText: '#ffffff', buttonDangerBg: '#D84315', buttonDangerText: '#ffffff', buttonWarningBg: '#FFB300', buttonWarningText: '#212121', buttonGrayBg: '#BCAAA4', buttonGrayText: '#3E2723',
+                        detailedCardGradientStart: '#8D6E63', detailedCardGradientEnd: '#795548', detailedCardBorder: '#6D4C41', detailedCardText: '#ffffff', detailedCardShadow: 'rgba(121, 85, 72, 0.25)'
+                    },
+                    dark: {
+                        bodyBg: '#2E1A1A', containerBg: '#3A2E2E', mainText: '#F5F5DC', appTitle: '#BCAAA4', listBg: '#4A3E3E', listText: '#F5F5DC', resultsHeaderBg: '#5D4037', resultsHeaderText: '#D7CCC8', resultsFooterBg: '#2E1A1A', resultsFooterText: '#ffffff', highlightColor: '#FF7043', tabButtonInactiveBg: '#4A3E3E', tabButtonInactiveText: '#BCAAA4', tabButtonActiveBg: '#3A2E2E', tabButtonActiveText: '#BCAAA4', borderColor: '#5D4037', inputBg: '#3A2E2E', inputText: '#F5F5DC', inputPlaceholder: '#BCAAA4', inputFocusBorder: '#D7CCC8', buttonPrimaryBg: '#5D4037', buttonPrimaryText: '#ffffff', buttonSecondaryBg: '#6D4C41', buttonSecondaryText: '#ffffff', buttonDangerBg: '#FF7043', buttonDangerText: '#212121', buttonWarningBg: '#FFD740', buttonWarningText: '#212121', buttonGrayBg: '#795548', buttonGrayText: '#F5F5DC',
+                        detailedCardGradientStart: '#D7CCC8', detailedCardGradientEnd: '#BCAAA4', detailedCardBorder: '#9E9E9E', detailedCardText: '#212121', detailedCardShadow: 'rgba(215, 204, 200, 0.25)'
+                    },
+                    previewColors: ['#A1887F', '#66BB6A', '#FFB74D', '#E57373', '#9CCC65']
+                },
+                "Di tendenza": {
+                    light: {
+                        bodyBg: '#F0F4F8', containerBg: '#FFFFFF', mainText: '#2C3E50', appTitle: '#3498DB', listBg: '#EBF5FB', listText: '#2C3E50', resultsHeaderBg: '#D4E6F1', resultsHeaderText: '#2C3E50', resultsFooterBg: '#2874A6', resultsFooterText: '#ffffff', highlightColor: '#E74C3C', tabButtonInactiveBg: '#D4E6F1', tabButtonInactiveText: '#2C3E50', tabButtonActiveBg: '#FFFFFF', tabButtonActiveText: '#3498DB', borderColor: '#AED6F1', inputBg: '#FFFFFF', inputText: '#2C3E50', inputPlaceholder: '#7F8C8D', inputFocusBorder: '#5DADE2', buttonPrimaryBg: '#2980B9', buttonPrimaryText: '#ffffff', buttonSecondaryBg: '#3498DB', buttonSecondaryText: '#ffffff', buttonDangerBg: '#E74C3C', buttonDangerText: '#ffffff', buttonWarningBg: '#F1C40F', buttonWarningText: '#2C3E50', buttonGrayBg: '#BDC3C7', buttonGrayText: '#2C3E50',
+                        detailedCardGradientStart: '#3498DB', detailedCardGradientEnd: '#2980B9', detailedCardBorder: '#2874A6', detailedCardText: '#ffffff', detailedCardShadow: 'rgba(52, 152, 219, 0.25)'
+                    },
+                    dark: {
+                        bodyBg: '#212F3D', containerBg: '#2C3E50', mainText: '#EBF5FB', appTitle: '#85C1E9', listBg: '#34495E', listText: '#EBF5FB', resultsHeaderBg: '#3498DB', resultsHeaderText: '#D4E6F1', resultsFooterBg: '#212F3D', resultsFooterText: '#ffffff', highlightColor: '#F08080', tabButtonInactiveBg: '#34495E', tabButtonInactiveText: '#85C1E9', tabButtonActiveBg: '#2C3E50', tabButtonActiveText: '#85C1E9', borderColor: '#3498DB', inputBg: '#2C3E50', inputText: '#EBF5FB', inputPlaceholder: '#85C1E9', inputFocusBorder: '#AED6F1', buttonPrimaryBg: '#3498DB', buttonPrimaryText: '#ffffff', buttonSecondaryBg: '#5DADE2', buttonSecondaryText: '#ffffff', buttonDangerBg: '#F08080', buttonDangerText: '#212121', buttonWarningBg: '#F7DC6F', buttonWarningText: '#212121', buttonGrayBg: '#7F8C8D', buttonGrayText: '#EBF5FB',
+                        detailedCardGradientStart: '#85C1E9', detailedCardGradientEnd: '#5DADE2', detailedCardBorder: '#AED6F1', detailedCardText: '#212F3D', detailedCardShadow: 'rgba(133, 193, 233, 0.25)'
+                    },
+                    previewColors: ['#3498DB', '#2ECC71', '#F1C40F', '#E74C3C', '#2C3E50']
+                },
+                "Elegante": {
+                    light: {
+                        bodyBg: '#F8F4F0', containerBg: '#FFFFFF', mainText: '#4A4A4A', appTitle: '#6A5ACD', listBg: '#F0F0F0', listText: '#4A4A4A', resultsHeaderBg: '#E6E6FA', resultsHeaderText: '#4A4A4A', resultsFooterBg: '#5B4B8A', resultsFooterText: '#ffffff', highlightColor: '#D2691E', tabButtonInactiveBg: '#E6E6FA', tabButtonInactiveText: '#4A4A4A', tabButtonActiveBg: '#FFFFFF', tabButtonActiveText: '#6A5ACD', borderColor: '#DCDCDC', inputBg: '#FFFFFF', inputText: '#4A4A4A', inputPlaceholder: '#8B8B8B', inputFocusBorder: '#9370DB', buttonPrimaryBg: '#7B68EE', buttonPrimaryText: '#ffffff', buttonSecondaryBg: '#9370DB', buttonSecondaryText: '#ffffff', buttonDangerBg: '#D2691E', buttonDangerText: '#ffffff', buttonWarningBg: '#FFD700', buttonWarningText: '#4A4A4A', buttonGrayBg: '#D3D3D3', buttonGrayText: '#4A4A4A',
+                        detailedCardGradientStart: '#9370DB', detailedCardGradientEnd: '#7B68EE', detailedCardBorder: '#6A5ACD', detailedCardText: '#ffffff', detailedCardShadow: 'rgba(147, 112, 219, 0.25)'
+                    },
+                    dark: {
+                        bodyBg: '#2C2A33', containerBg: '#3A3840', mainText: '#F0F0F0', appTitle: '#B0A3D4', listBg: '#4A4850', listText: '#F0F0F0', resultsHeaderBg: '#5B4B8A', resultsHeaderText: '#E6E6FA', resultsFooterBg: '#2C2A33', resultsFooterText: '#ffffff', highlightColor: '#FFD700', tabButtonInactiveBg: '#4A4850', tabButtonInactiveText: '#B0A3D4', tabButtonActiveBg: '#3A3840', tabButtonActiveText: '#B0A3D4', borderColor: '#5B4B8A', inputBg: '#3A3840', inputText: '#F0F0F0', inputPlaceholder: '#B0A3D4', inputFocusBorder: '#DCDCDC', buttonPrimaryBg: '#6A5ACD', buttonPrimaryText: '#ffffff', buttonSecondaryBg: '#7B68EE', buttonSecondaryText: '#ffffff', buttonDangerBg: '#FFD700', buttonDangerText: '#212121', buttonWarningBg: '#FFEB3B', buttonWarningText: '#212121', buttonGrayBg: '#8B8B8B', buttonGrayText: '#F0F0F0',
+                        detailedCardGradientStart: '#DCDCDC', detailedCardGradientEnd: '#C0C0C0', detailedCardBorder: '#A9A9A9', detailedCardText: '#2C2A33', detailedCardShadow: 'rgba(220, 220, 220, 0.25)'
+                    },
+                    previewColors: ['#8A2BE2', '#6B8E23', '#FFD700', '#B22222', '#6A5ACD']
+                },
+                "Geek": {
+                    light: {
+                        bodyBg: '#F0F8FF', containerBg: '#FFFFFF', mainText: '#1C2833', appTitle: '#008080', listBg: '#E0FFFF', listText: '#1C2833', resultsHeaderBg: '#AFEEEE', resultsHeaderText: '#004D40', resultsFooterBg: '#005D5D', resultsFooterText: '#ffffff', highlightColor: '#DC143C', tabButtonInactiveBg: '#E0FFFF', tabButtonInactiveText: '#1C2833', tabButtonActiveBg: '#FFFFFF', tabButtonActiveText: '#008080', borderColor: '#B0E0E6', inputBg: '#FFFFFF', inputText: '#1C2833', inputPlaceholder: '#4682B4', inputFocusBorder: '#48D1CC', buttonPrimaryBg: '#008B8B', buttonPrimaryText: '#ffffff', buttonSecondaryBg: '#48D1CC', buttonSecondaryText: '#ffffff', buttonDangerBg: '#DC143C', buttonDangerText: '#ffffff', buttonWarningBg: '#FFD700', buttonWarningText: '#1C2833', buttonGrayBg: '#B0C4DE', buttonGrayText: '#1C2833',
+                        detailedCardGradientStart: '#48D1CC', detailedCardGradientEnd: '#00CED1', detailedCardBorder: '#008B8B', detailedCardText: '#ffffff', detailedCardShadow: 'rgba(72, 209, 204, 0.25)'
+                    },
+                    dark: {
+                        bodyBg: '#0F172A', containerBg: '#1C2833', mainText: '#E0FFFF', appTitle: '#20B2AA', listBg: '#213342', listText: '#E0FFFF', resultsHeaderBg: '#008080', resultsHeaderText: '#B0E0E6', resultsFooterBg: '#0F172A', resultsFooterText: '#ffffff', highlightColor: '#FF6347', tabButtonInactiveBg: '#213342', tabButtonInactiveText: '#20B2AA', tabButtonActiveBg: '#1C2833', tabButtonActiveText: '#20B2AA', borderColor: '#008080', inputBg: '#1C2833', inputText: '#E0FFFF', inputPlaceholder: '#20B2AA', inputFocusBorder: '#48D1CC', buttonPrimaryBg: '#008080', buttonPrimaryText: '#ffffff', buttonSecondaryBg: '#20B2AA', buttonSecondaryText: '#ffffff', buttonDangerBg: '#FF6347', buttonDangerText: '#212121', buttonWarningBg: '#FFDB58', buttonWarningText: '#212121', buttonGrayBg: '#4682B4', buttonGrayText: '#E0FFFF',
+                        detailedCardGradientStart: '#20B2AA', detailedCardGradientEnd: '#008B8B', detailedCardBorder: '#005D5D', detailedCardText: '#E0FFFF', detailedCardShadow: 'rgba(32, 178, 170, 0.25)'
+                    },
+                    previewColors: ['#00BFFF', '#32CD32', '#FFD700', '#FF4500', '#4682B4']
+                },
+                "Neutro": {
+                    light: {
+                        bodyBg: '#F5F5F5', containerBg: '#FFFFFF', mainText: '#424242', appTitle: '#616161', listBg: '#EEEEEE', listText: '#424242', resultsHeaderBg: '#E0E0E0', resultsHeaderText: '#424242', resultsFooterBg: '#757575', resultsFooterText: '#ffffff', highlightColor: '#D32F2F', tabButtonInactiveBg: '#E0E0E0', tabButtonInactiveText: '#424242', tabButtonActiveBg: '#FFFFFF', tabButtonActiveText: '#616161', borderColor: '#BDBDBD', inputBg: '#FFFFFF', inputText: '#424242', inputPlaceholder: '#9E9E9E', inputFocusBorder: '#757575', buttonPrimaryBg: '#616161', buttonPrimaryText: '#ffffff', buttonSecondaryBg: '#757575', buttonSecondaryText: '#ffffff', buttonDangerBg: '#D32F2F', buttonDangerText: '#ffffff', buttonWarningBg: '#FFD700', buttonWarningText: '#424242', buttonGrayBg: '#BDBDBD', buttonGrayText: '#424242',
+                        detailedCardGradientStart: '#BDBDBD', detailedCardGradientEnd: '#9E9E9E', detailedCardBorder: '#757575', detailedCardText: '#ffffff', detailedCardShadow: 'rgba(158, 158, 158, 0.25)'
+                    },
+                    dark: {
+                        bodyBg: '#212121', containerBg: '#303030', mainText: '#E0E0E0', appTitle: '#BDBDBD', listBg: '#424242', listText: '#E0E0E0', resultsHeaderBg: '#616161', resultsHeaderText: '#E0E0E0', resultsFooterBg: '#212121', resultsFooterText: '#ffffff', highlightColor: '#EF9A9A', tabButtonInactiveBg: '#424242', tabButtonInactiveText: '#BDBDBD', tabButtonActiveBg: '#303030', tabButtonActiveText: '#BDBDBD', borderColor: '#616161', inputBg: '#303030', inputText: '#E0E0E0', inputPlaceholder: '#BDBDBD', inputFocusBorder: '#9E9E9E', buttonPrimaryBg: '#616161', buttonPrimaryText: '#ffffff', buttonSecondaryBg: '#757575', buttonSecondaryText: '#ffffff', buttonDangerBg: '#EF9A9A', buttonDangerText: '#212121', buttonWarningBg: '#FFEB3B', buttonWarningText: '#212121', buttonGrayBg: '#9E9E9E', buttonGrayText: '#212121',
+                        detailedCardGradientStart: '#757575', detailedCardGradientEnd: '#616161', detailedCardBorder: '#424242', detailedCardText: '#E0E0E0', detailedCardShadow: 'rgba(117, 117, 117, 0.25)'
+                    },
+                    previewColors: ['#757575', '#E0E0E0', '#BDBDBD', '#D32F2F', '#9E9E9E']
+                }
+            },
 
-            const resultDiv = document.getElementById('result');
-            let resultHTML = `
-                <div style="margin-bottom: 15px;">
-                    <strong>📅 Orario di partenza:</strong> ${startTimeInput.value}
-                </div>
-            `;
-            
-            results.forEach(result => {
-                resultHTML += `
-                    <div style="margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 8px;">
-                        <strong>${result.name}</strong><br>
-                        Durata: ${result.duration} min → Fine: <strong>${result.endTime}</strong>
+            init: function() {
+                // Controllo e acquisizione degli elementi DOM essenziali all'avvio
+                const langSelector = document.getElementById('language-selector');
+                const themeIcon = document.getElementById('theme-icon');
+                const appTitle = document.getElementById('app-title');
+                const addSequenceText = document.getElementById('add-sequence-text');
+                const addSequenceBtn = document.getElementById('add-sequence-btn');
+                const tabsHeader = document.getElementById('tabs-header');
+                const tabsContent = document.getElementById('tabs-content');
+                const paletteToggleBtn = document.getElementById('palette-toggle-btn');
+                const closePaletteModalBtn = document.getElementById('close-palette-modal'); // Still checking for safety, but not critical
+
+                // Verifica che tutti gli elementi critici siano presenti
+                if (!langSelector || !themeIcon || !appTitle || !addSequenceText || !addSequenceBtn || !tabsHeader || !tabsContent || !paletteToggleBtn || !closePaletteModalBtn) {
+                    console.error("ERRORE CRITICO: Uno o più elementi DOM essenziali non sono stati trovati all'inizializzazione dell'app. L'app non può procedere.");
+                    console.error({
+                        langSelector: !!langSelector, themeIcon: !!themeIcon, appTitle: !!appTitle, addSequenceText: !!addSequenceText,
+                        addSequenceBtn: !!addSequenceBtn, tabsHeader: !!tabsHeader, tabsContent: !!tabsContent,
+                        paletteToggleBtn: !!paletteToggleBtn, closePaletteModalBtn: !!closePaletteModalBtn
+                    });
+                    this.showMessage(this.translations['en'].modalTitleError, this.translations['en'].modalMessageGenericError + " (Essential elements missing, check console).", true);
+                    return; // Interrompe l'inizializzazione se mancano elementi critici
+                }
+
+                // Applica il tema e la lingua salvati
+                document.documentElement.classList.toggle('dark', this.currentTheme === 'dark');
+                themeIcon.className = this.currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                this.currentLang = localStorage.getItem('appLang') || 'en';
+                langSelector.value = this.currentLang;
+                
+                this.currentPalette = localStorage.getItem('currentPalette') || 'Standard'; // Assicurati che la palette sia 'Standard' per default o dal localStorage
+                this.applyPalette(this.currentPalette); // Applica la palette all'avvio
+
+                // Imposta le traduzioni iniziali e aggiunge gli Event Listener
+                this.setLanguage(this.currentLang);
+                addSequenceBtn.addEventListener('click', () => this.addSequence());
+                langSelector.addEventListener('change', (e) => this.setLanguage(e.target.value));
+                document.getElementById('theme-toggle-btn').addEventListener('click', () => this.toggleTheme());
+                 // Event listener per la modale delle palette
+                paletteToggleBtn.addEventListener('click', () => this.openPaletteModal());
+                closePaletteModalBtn.addEventListener('click', () => this.closePaletteModal());
+
+
+                // Carica le sequenze salvate o ne crea una nuova
+                if (this.sequences.length > 0) {
+                    this.nextSequenceId = Math.max(...this.sequences.map(seq => parseInt(seq.id.replace('sequence-', '')))) + 1;
+                    // Converte le stringhe data in oggetti Date per i risultati calcolati
+                    this.sequences.forEach(seq => {
+                        seq.calculatedResults.forEach(res => {
+                            if (res.startTime && typeof res.startTime === 'string') res.startTime = new Date(res.startTime); 
+                            if (typeof res.endTime === 'string') res.endTime = new Date(res.endTime);
+                        });
+                    });
+                    const lastActiveId = localStorage.getItem('lastActiveSequenceId');
+                    this.activeSequenceId = this.sequences.some(seq => seq.id === lastActiveId) ? lastActiveId : this.sequences[0].id;
+                    this.renderTabs();
+                    this.activateTab(this.activeSequenceId);
+                } else {
+                    this.addSequence();
+                }
+            },
+
+            toggleTheme: function() {
+                this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+                localStorage.setItem('theme', this.currentTheme);
+                document.documentElement.classList.toggle('dark', this.currentTheme === 'dark');
+                const themeIcon = document.getElementById('theme-icon');
+                if (themeIcon) {
+                    themeIcon.className = this.currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                } else {
+                    console.error("ERRORE: Elemento 'theme-icon' non trovato durante il cambio tema.");
+                }
+                this.applyPalette(this.currentPalette); // Riapplica la palette con il nuovo tema
+            },
+
+            setLanguage: function(lang) {
+                this.currentLang = lang;
+                localStorage.setItem('appLang', lang);
+                const t = this.translations[lang];
+
+                const appTitle = document.getElementById('app-title');
+                const addSequenceText = document.getElementById('add-sequence-text');
+                const languageSelector = document.getElementById('language-selector');
+
+                if (appTitle) appTitle.textContent = t.appName;
+                else console.error("ERRORE: Elemento 'app-title' non trovato durante il cambio lingua.");
+                
+                if (addSequenceText) addSequenceText.textContent = t.addSequence;
+                else console.error("ERRORE: Elemento 'add-sequence-text' non trovato durante il cambio lingua.");
+
+                if (languageSelector) languageSelector.value = lang;
+                else console.error("ERRORE: Elemento 'language-selector' non trovato durante il cambio lingua.");
+
+                // Update palette modal title
+                const selectPaletteTitle = document.getElementById('select-palette-title');
+                if (selectPaletteTitle) selectPaletteTitle.textContent = t.selectPaletteTitle;
+                else console.error("ERRORE: Elemento 'select-palette-title' non trovato durante il cambio lingua.");
+                
+                this.renderTabs();
+                if (this.activeSequenceId) {
+                    this.activateTab(this.activeSequenceId);
+                } else if (this.sequences.length > 0) {
+                    this.activateTab(this.sequences[0].id);
+                }
+            },
+
+            // === Gestione Palette Colori ===
+            applyPalette: function(paletteName) {
+                const palette = this.palettes[paletteName];
+                if (!palette) {
+                    console.error(`Palette "${paletteName}" non trovata.`);
+                    return;
+                }
+
+                const currentColors = palette[this.currentTheme];
+                if (!currentColors) {
+                    console.error(`Colori per il tema "${this.currentTheme}" nella palette "${paletteName}" non trovati.`);
+                    return;
+                }
+
+                // Applica le variabili CSS
+                const root = document.documentElement;
+                for (const [prop, value] of Object.entries(currentColors)) {
+                    root.style.setProperty(`--${this.camelToKebab(prop)}`, value);
+                }
+                
+                this.currentPalette = paletteName;
+                localStorage.setItem('currentPalette', paletteName);
+                this.updatePaletteSelectionInModal(); // Aggiorna lo stato selezionato nella modale
+            },
+
+            camelToKebab: function(camelCase) {
+                return camelCase.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
+            },
+
+            openPaletteModal: function() {
+                const paletteModal = document.getElementById('palette-modal');
+                const palettesGrid = document.getElementById('palettes-grid');
+                if (!paletteModal || !palettesGrid) {
+                    console.error("ERRORE: Elementi della modale palette non trovati.");
+                    return;
+                }
+                palettesGrid.innerHTML = ''; // Pulisci la griglia prima di riempirla
+
+                // Popola la griglia con le palette
+                for (const name in this.palettes) {
+                    const palette = this.palettes[name];
+                    const card = document.createElement('div');
+                    card.className = `palette-card rounded-lg p-4 cursor-pointer text-center ${this.currentPalette === name ? 'selected' : ''}`;
+                    card.dataset.paletteName = name;
+                    card.innerHTML = `
+                        <p class="font-semibold mb-2">${name}</p>
+                        <div class="palette-card-preview flex justify-center">
+                            ${palette.previewColors.map(color => `<div class="palette-color-circle" style="background-color: ${color};"></div>`).join('')}
+                        </div>
+                    `;
+                    card.addEventListener('click', () => {
+                        this.applyPalette(name);
+                        this.closePaletteModal();
+                    });
+                    palettesGrid.appendChild(card);
+                }
+
+                paletteModal.classList.remove('hidden');
+                paletteModal.classList.add('flex');
+            },
+
+            closePaletteModal: function() {
+                const paletteModal = document.getElementById('palette-modal');
+                if (paletteModal) {
+                    paletteModal.classList.remove('flex');
+                    paletteModal.classList.add('hidden');
+                } else {
+                    console.error("ERRORE: Elemento 'palette-modal' non trovato per chiudere la modale.");
+                }
+            },
+
+            updatePaletteSelectionInModal: function() {
+                document.querySelectorAll('.palette-card').forEach(card => {
+                    card.classList.toggle('selected', card.dataset.paletteName === this.currentPalette);
+                });
+            },
+            // === Fine Gestione Palette Colori ===
+
+            showMessage: function(title, message, isError = false) {
+                const modal = document.getElementById('message-modal');
+                const modalTitle = document.getElementById('modal-title');
+                const modalMessage = document.getElementById('modal-message');
+                const buttonsContainer = document.getElementById('modal-buttons-container');
+
+                if (!modal || !modalTitle || !modalMessage || !buttonsContainer) {
+                    console.error("ERRORE: Elementi della modale di messaggio non trovati. Impossibile mostrare il messaggio.");
+                    console.log(`Messaggio da visualizzare: Titolo: "${title}", Testo: "${message}", Errore: ${isError}`);
+                    return;
+                }
+
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                buttonsContainer.innerHTML = '';
+                const okBtn = document.createElement('button');
+                okBtn.className = 'btn bg-indigo-500 text-white';
+                okBtn.textContent = "OK";
+                okBtn.onclick = () => { this.hideMessage(); };
+                buttonsContainer.appendChild(okBtn);
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                modalTitle.classList.toggle('text-red-600', isError);
+                modalTitle.classList.toggle('text-indigo-600', !isError);
+                modalTitle.classList.toggle('dark:text-red-400', isError && this.currentTheme === 'dark');
+                modalTitle.classList.toggle('dark:text-indigo-400', !isError && this.currentTheme === 'dark');
+            },
+
+            showConfirm: function(title, message, onConfirmCallback, onCancelCallback = null) {
+                const modal = document.getElementById('message-modal');
+                const modalTitle = document.getElementById('modal-title');
+                const modalMessage = document.getElementById('modal-message');
+                const buttonsContainer = document.getElementById('modal-buttons-container');
+
+                if (!modal || !modalTitle || !modalMessage || !buttonsContainer) {
+                    console.error("ERRORE: Elementi della modale di conferma non trovati. Impossibile mostrare la conferma.");
+                    console.log(`Richiesta di conferma: Titolo: "${title}", Testo: "${message}"`);
+                    return;
+                }
+
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                buttonsContainer.innerHTML = '';
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = 'btn bg-red-500 text-white mr-2';
+                confirmBtn.textContent = this.translations[this.currentLang].confirmYes;
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'btn bg-gray-300';
+                cancelBtn.textContent = this.translations[this.currentLang].confirmNo;
+                confirmBtn.onclick = () => { this.hideMessage(); if (onConfirmCallback) onConfirmCallback(); };
+                cancelBtn.onclick = () => { this.hideMessage(); if (onCancelCallback) onCancelCallback(); };
+                buttonsContainer.appendChild(confirmBtn);
+                buttonsContainer.appendChild(cancelBtn);
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                modalTitle.className = 'text-xl font-bold mb-4 text-indigo-600 dark:text-indigo-400';
+            },
+
+            hideMessage: function() {
+                const modal = document.getElementById('message-modal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                } else {
+                    console.error("ERRORE: Elemento 'message-modal' non trovato per nascondere il messaggio.");
+                }
+            },
+
+            saveSequences: function() {
+                localStorage.setItem('timeManagerSequences', JSON.stringify(this.sequences));
+                if (this.activeSequenceId) {
+                    localStorage.setItem('lastActiveSequenceId', this.activeSequenceId);
+                }
+            },
+
+            addSequence: function() {
+                const sequenceId = `sequence-${this.nextSequenceId++}`;
+                const now = new Date();
+                const defaultDateTime = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}T${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                const newSequence = { id: sequenceId, name: `${this.translations[this.currentLang].sequenceTitle} ${this.sequences.length + 1}`, startDate: defaultDateTime, activities: [], calculatedResults: [], notificationIds: [] };
+                this.sequences.push(newSequence);
+                this.saveSequences();
+                this.renderTabs();
+                this.activateTab(sequenceId);
+            },
+
+            deleteSequence: function(sequenceId) {
+                const t = this.translations[this.currentLang];
+                this.cancelSequenceNotifications(sequenceId);
+                const deletedIndex = this.sequences.findIndex(seq => seq.id === sequenceId);
+                this.sequences = this.sequences.filter(seq => seq.id !== sequenceId);
+                this.saveSequences();
+                this.renderTabs();
+                if (this.activeSequenceId === sequenceId) {
+                    if (this.sequences.length > 0) {
+                        const newActiveIndex = Math.min(deletedIndex, this.sequences.length - 1);
+                        this.activeSequenceId = this.sequences[newActiveIndex].id;
+                        this.activateTab(this.activeSequenceId);
+                    } else {
+                        this.activeSequenceId = null;
+                        const tabsContent = document.getElementById('tabs-content');
+                        if (tabsContent) {
+                            tabsContent.innerHTML = '';
+                        } else {
+                            console.error("ERRORE: Elemento 'tabs-content' non trovato dopo l'eliminazione dell'ultima sequenza.");
+                        }
+                    }
+                }
+                this.showMessage(t.modalTitleSuccess, `${t.sequenceTitle} eliminata.`);
+            },
+
+            renderTabs: function() {
+                const tabsHeader = document.getElementById('tabs-header');
+                if (!tabsHeader) {
+                    console.error("ERRORE: Elemento 'tabs-header' non trovato durante il rendering delle tab.");
+                    return;
+                }
+                tabsHeader.innerHTML = '';
+                this.sequences.forEach(seq => {
+                    const tabButton = document.createElement('button');
+                    tabButton.id = `tab-${seq.id}`;
+                    tabButton.className = `tab-button ${this.activeSequenceId === seq.id ? 'active' : ''}`;
+                    tabButton.textContent = seq.name;
+                    tabButton.dataset.sequenceId = seq.id;
+                    tabButton.addEventListener('click', () => this.activateTab(seq.id));
+                    tabsHeader.appendChild(tabButton);
+                });
+            },
+
+            activateTab: function(sequenceId) {
+                this.activeSequenceId = sequenceId;
+                this.saveSequences();
+                const tabButtons = document.querySelectorAll('.tab-button');
+                if (tabButtons) {
+                    tabButtons.forEach(button => {
+                        button.classList.toggle('active', button.dataset.sequenceId === sequenceId);
+                    });
+                } else {
+                    console.warn("ATTENZIONE: Nessun elemento '.tab-button' trovato durante l'attivazione della tab.");
+                }
+
+                const tabsContent = document.getElementById('tabs-content');
+                if (!tabsContent) {
+                    console.error("ERRORE: Elemento 'tabs-content' non trovato durante l'attivazione della tab.");
+                    return;
+                }
+                tabsContent.innerHTML = '';
+                const seq = this.sequences.find(s => s.id === sequenceId);
+                if (seq) {
+                    const sequenceElement = this.createSequenceElement(seq);
+                    if (sequenceElement) {
+                        tabsContent.appendChild(sequenceElement);
+                        this.renderActivities(sequenceElement, seq.id);
+                        this.updateNotificationControls(sequenceElement, seq.id);
+                        this.updateResultDisplay(sequenceElement, seq.id);
+                    } else {
+                        console.error(`ERRORE: createSequenceElement ha restituito null per la sequenza ${seq.id}.`);
+                    }
+                } else {
+                    console.warn(`ATTENZIONE: Sequenza con ID ${sequenceId} non trovata durante l'attivazione della tab.`);
+                }
+            },
+
+            createSequenceElement: function(seq) {
+                const t = this.translations[this.currentLang];
+                const sequenceDiv = document.createElement('div');
+                sequenceDiv.id = seq.id;
+                sequenceDiv.className = 'sequence-input-card rounded-lg p-6 mb-6'; /* Added rounded-lg p-6 mb-6 back */
+                sequenceDiv.innerHTML = `
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 id="${seq.id}-sequence-name" contenteditable="true" class="text-xl font-semibold cursor-pointer p-1 rounded">${seq.name}</h2>
+                        <button class="delete-sequence-btn btn px-3 py-1 bg-red-500 text-white" data-sequence-id="${seq.id}">
+                            <i class="fas fa-trash-alt"></i><span class="hidden sm:inline ml-2">${t.deleteSequence}</span>
+                        </button>
+                    </div>
+                    <div class="mb-4">
+                        <label for="${seq.id}-start-date" class="block text-sm font-bold mb-2">${t.startDate}:</label>
+                        <div class="relative flex items-center">
+                            <input type="datetime-local" id="${seq.id}-start-date" value="${seq.startDate}" class="shadow-sm appearance-none rounded w-full py-2 pr-10 px-3 leading-tight">
+                            <i class="fas fa-calendar-alt absolute right-3 text-gray-400 dark:text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="${seq.id}-activity-name" class="block text-sm font-bold mb-2">${t.activityName}:</label>
+                        <input type="text" id="${seq.id}-activity-name" placeholder="${t.activityName}" class="shadow-sm appearance-none rounded w-full py-2 px-3 leading-tight">
+                    </div>
+                    <div class="mb-4 grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="${seq.id}-duration-hours" class="block text-sm font-bold mb-2">${t.hours}:</label>
+                            <input type="number" id="${seq.id}-duration-hours" value="0" min="0" class="shadow-sm appearance-none rounded w-full py-2 px-3 leading-tight">
+                        </div>
+                        <div>
+                            <label for="${seq.id}-duration-minutes" class="block text-sm font-bold mb-2">${t.minutes}:</label>
+                            <input type="number" id="${seq.id}-duration-minutes" value="0" min="0" max="59" class="shadow-sm appearance-none rounded w-full py-2 px-3 leading-tight">
+                        </div>
+                    </div>
+                    <button class="add-activity-btn btn w-full bg-blue-500 text-white mb-6 text-lg" data-sequence-id="${seq.id}">
+                        <i class="fas fa-plus mr-2"></i> ${t.addActivity}
+                    </button>
+                    <div class="activity-list-container max-h-48 overflow-y-auto p-3 rounded-md shadow-inner mb-4">
+                        <h3 class="text-md font-semibold mb-2" id="${seq.id}-activities-list-title">${t.activitiesList}:</h3>
+                        <ul class="activity-list space-y-2" id="${seq.id}-activity-list"></ul>
+                    </div>
+                    <button class="calculate-btn btn w-full bg-indigo-500 text-white mb-4 text-lg" data-sequence-id="${seq.id}">
+                        <i class="fas fa-calculator mr-2"></i> ${t.calculate}
+                    </button>
+                    <div id="${seq.id}-results" class="results-section rounded-lg p-6 mb-4 hidden">
+                        <div id="${seq.id}-detailed-schedule" class="space-y-3"></div>
+                        <div id="${seq.id}-notification-controls" class="mt-6">
+                           <h4 class="text-lg font-semibold mb-2">Notifiche:</h4>
+                           <div class="flex flex-wrap gap-2 items-center">
+                              <button class="set-notifications-btn btn bg-green-500 text-white" data-sequence-id="${seq.id}"><i class="fas fa-bell mr-2"></i> ${t.setNotifications}</button>
+                              <button class="disable-notifications-btn btn bg-yellow-500 text-white hidden" data-sequence-id="${seq.id}"><i class="fas fa-bell-slash mr-2"></i> ${t.disableNotifications}</button>
+                              <p id="${seq.id}-notification-status" class="text-sm text-slate-600 dark:text-slate-400">${t.noNotifications}</p>
+                           </div>
+                        </div>
                     </div>
                 `;
-            });
-            
-            const finalEndTime = results[results.length - 1].endTime;
-            resultHTML += `
-                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.3); border-radius: 10px; border: 2px solid rgba(255,255,255,0.5);">
-                    <strong>🏁 Termine di tutte le attività: ${finalEndTime}</strong>
-                </div>
-            `;
-
-            resultDiv.innerHTML = resultHTML;
-            resultDiv.style.display = 'block';
-            
-            // Scroll smooth verso il risultato
-            resultDiv.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function setNotification(button) {
-            const activityItem = button.closest('.activity-item');
-            const activityName = activityItem.querySelector('.activity-name').value;
-            const duration = parseInt(activityItem.querySelector('.activity-duration').value);
-            
-            if (!activityName || !duration || duration <= 0) {
-                alert('Inserisci nome e durata dell\'attività prima di impostare la notifica!');
-                return;
-            }
-
-            // Calcola l'orario di fine attività
-            const startTimeInput = document.getElementById('startTime');
-            if (!startTimeInput.value) {
-                alert('Inserisci l\'orario di partenza prima di impostare la notifica!');
-                return;
-            }
-
-            // Calcola il tempo totale fino a questa attività
-            let totalMinutes = 0;
-            const activities = document.querySelectorAll('.activity-item');
-            
-            for (let activity of activities) {
-                const actDuration = parseInt(activity.querySelector('.activity-duration').value) || 0;
-                totalMinutes += actDuration;
-                
-                if (activity === activityItem) break;
-            }
-
-            let endTime = new Date();
-            const [hours, minutes] = startTimeInput.value.split(':');
-            endTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-            endTime.setMinutes(endTime.getMinutes() + totalMinutes);
-
-            // Calcola l'orario della notifica (10 minuti prima)
-            let notificationTime = new Date(endTime);
-            notificationTime.setMinutes(notificationTime.getMinutes() - 10);
-
-            const endTimeStr = endTime.toTimeString().substring(0, 5);
-            const notificationTimeStr = notificationTime.toTimeString().substring(0, 5);
-
-            // Controlla se la notifica è nel passato
-            const now = new Date();
-            if (notificationTime <= now) {
-                alert('L\'orario della notifica è già passato! Modifica l\'orario di partenza o la durata.');
-                return;
-            }
-
-            // Notifica nativa Android con Cordova
-            if (window.cordova && cordova.plugins && cordova.plugins.notification) {
-                try {
-                    cordova.plugins.notification.local.schedule({
-                        id: Date.now(),
-                        title: 'Promemoria Attività 🔔',
-                        text: `${activityName} termina alle ${endTimeStr}`,
-                        trigger: { at: notificationTime },
-                        sound: true,
-                        vibrate: true,
-                        icon: 'res://icon',
-                        smallIcon: 'res://icon',
-                        badge: 1,
-                        priority: 2
+                // Assicurati che gli elementi esistano prima di aggiungere i listener
+                const sequenceNameElement = sequenceDiv.querySelector(`#${seq.id}-sequence-name`);
+                if (sequenceNameElement) {
+                    sequenceNameElement.addEventListener('blur', (e) => { 
+                        seq.name = e.target.textContent.trim(); 
+                        this.saveSequences(); 
+                        this.renderTabs(); 
+                        this.activateTab(seq.id); 
                     });
-                    
-                    console.log('Notifica nativa programmata con successo');
-                } catch (error) {
-                    console.error('Errore nella programmazione notifica nativa:', error);
-                    // Fallback per browser
-                    scheduleWebNotification(activityName, endTimeStr, notificationTime);
+                } else { console.error(`ERRORE: Elemento del nome sequenza non trovato per ${seq.id}.`); }
+
+                const startDateElement = sequenceDiv.querySelector(`#${seq.id}-start-date`);
+                if (startDateElement) {
+                    startDateElement.addEventListener('change', (e) => { 
+                        seq.startDate = e.target.value; 
+                        this.saveSequences(); 
+                    });
+                } else { console.error(`ERRORE: Elemento data inizio non trovato per ${seq.id}.`); }
+
+                const addActivityBtn = sequenceDiv.querySelector('.add-activity-btn');
+                if (addActivityBtn) {
+                    addActivityBtn.addEventListener('click', (e) => this.addActivity(e.currentTarget.dataset.sequenceId));
+                } else { console.error(`ERRORE: Bottone aggiungi attività non trovato per ${seq.id}.`); }
+
+                const calculateBtn = sequenceDiv.querySelector('.calculate-btn');
+                if (calculateBtn) {
+                    calculateBtn.addEventListener('click', (e) => this.calculateTimes(e.currentTarget.dataset.sequenceId));
+                } else { console.error(`ERRORE: Bottone calcola non trovato per ${seq.id}.`); }
+
+                const deleteSequenceBtn = sequenceDiv.querySelector('.delete-sequence-btn');
+                if (deleteSequenceBtn) {
+                    deleteSequenceBtn.addEventListener('click', (e) => {
+                        const sequenceIdToDelete = e.currentTarget.dataset.sequenceId; // FIX: Extract ID here
+                        const t = app.translations[app.currentLang];
+                        this.showConfirm(t.deleteSequence, t.deleteSequenceConfirm, () => {
+                            this.deleteSequence(sequenceIdToDelete); // FIX: Use the extracted ID
+                        });
+                    });
+                } else { console.error(`ERRORE: Bottone elimina sequenza non trovato per ${seq.id}.`); }
+
+                const setNotificationsBtn = sequenceDiv.querySelector('.set-notifications-btn');
+                if (setNotificationsBtn) {
+                    setNotificationsBtn.addEventListener('click', (e) => this.setNotifications(e.currentTarget.dataset.sequenceId));
+                } else { console.error(`ERRORE: Bottone imposta notifiche non trovato per ${seq.id}.`); }
+
+                const disableNotificationsBtn = sequenceDiv.querySelector('.disable-notifications-btn');
+                if (disableNotificationsBtn) {
+                    disableNotificationsBtn.addEventListener('click', (e) => this.disableNotifications(e.currentTarget.dataset.sequenceId));
+                } else { console.error(`ERRORE: Bottone disabilita notifiche non trovato per ${seq.id}.`); }
+
+                return sequenceDiv;
+            },
+
+            renderActivities: function(sequenceElement, sequenceId) {
+                const seq = this.sequences.find(s => s.id === sequenceId);
+                if (!sequenceElement) {
+                    console.warn(`ATTENZIONE: sequenceElement è null per sequenceId: ${sequenceId}. Impossibile renderizzare le attività.`);
+                    return;
                 }
-            } 
-            // Fallback per browser web con Web Notifications API
-            else if ('Notification' in window) {
-                scheduleWebNotification(activityName, endTimeStr, notificationTime);
-            }
-            else {
-                console.log('Notifiche non supportate in questo ambiente');
-            }
+                const activityListUl = sequenceElement.querySelector(`#${sequenceId}-activity-list`);
+                if (!activityListUl) {
+                    console.error(`ERRORE: Elemento UL della lista attività non trovato per la sequenza ${sequenceId}.`);
+                    return;
+                }
+                if (seq) {
+                    activityListUl.innerHTML = '';
+                    seq.activities.forEach((activity, index) => {
+                        const li = document.createElement('li');
+                        li.className = 'flex justify-between items-center p-2 rounded-md shadow-sm bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700'; /* Aggiornate classi per sfondo e bordo */
+                        li.innerHTML = `
+                            <span class="text-gray-900 dark:text-gray-100">${activity.name} (${activity.durationHours}h ${activity.durationMinutes}m)</span>
+                            <button class="delete-activity-btn text-red-500 hover:text-red-700 ml-2" data-activity-index="${index}">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                        `;
+                        const deleteButton = li.querySelector('.delete-activity-btn');
+                        if (deleteButton) {
+                            deleteButton.addEventListener('click', () => { 
+                                const t = app.translations[app.currentLang]; 
+                                this.showConfirm(t.deleteActivity, t.deleteActivityConfirm, () => { 
+                                    this.deleteActivity(sequenceId, index); 
+                                }); 
+                            });
+                        } else {
+                            console.warn(`ATTENZIONE: Bottone di eliminazione non trovato per l'attività all'indice ${index} nella sequenza ${sequenceId}.`);
+                        }
+                        activityListUl.appendChild(li);
+                    });
+                } else {
+                    console.warn(`ATTENZIONE: Dati della sequenza non trovati per l'ID ${sequenceId} durante il rendering delle attività.`);
+                }
+            },
 
-            // Aggiorna UI
-            const notificationInfo = activityItem.querySelector('.notification-info');
-            const notificationDetails = notificationInfo.querySelector('.notification-details');
-            
-            notificationDetails.innerHTML = `
-                <strong>${activityName}</strong> termina alle <strong>${endTimeStr}</strong><br>
-                Notifica programmata per le <strong>${notificationTimeStr}</strong>
-            `;
-            
-            notificationInfo.classList.add('show');
-            button.disabled = true;
-            button.innerHTML = '✅ Notifica Attiva';
-            button.style.background = '#48bb78';
-        }
+            addActivity: function(sequenceId) {
+                const t = this.translations[this.currentLang];
+                const seq = this.sequences.find(s => s.id === sequenceId);
+                if (!seq) { console.error(`ERRORE: Sequenza con ID ${sequenceId} non trovata per aggiungere attività.`); return; }
 
-        // Funzione fallback per notifiche web
-        function scheduleWebNotification(activityName, endTimeStr, notificationTime) {
-            if (Notification.permission === 'granted') {
-                const timeUntilNotification = notificationTime.getTime() - Date.now();
+                const nameInput = document.getElementById(`${sequenceId}-activity-name`);
+                const hoursInput = document.getElementById(`${sequenceId}-duration-hours`);
+                const minutesInput = document.getElementById(`${sequenceId}-duration-minutes`);
+
+                if (!nameInput || !hoursInput || !minutesInput) {
+                    this.showMessage(t.modalTitleError, t.modalMessageGenericError + " (Campi di input mancanti).", true);
+                    console.error(`ERRORE: Elementi di input mancanti per la sequenza ${sequenceId}. Nome: ${!!nameInput}, Ore: ${!!hoursInput}, Minuti: ${!!minutesInput}`);
+                    return;
+                }
+
+                const name = nameInput.value.trim();
+                const hours = parseInt(hoursInput.value);
+                const minutes = parseInt(minutesInput.value);
+                if (!name || isNaN(hours) || isNaN(minutes) || hours < 0 || minutes < 0 || minutes > 59) { this.showMessage(t.modalTitleError, t.modalMessageInvalidInput, true); return; }
                 
-                if (timeUntilNotification > 0) {
-                    setTimeout(() => {
-                        new Notification('Promemoria Attività 🔔', {
-                            body: `${activityName} termina alle ${endTimeStr}`,
-                            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23667eea"/><text x="50" y="60" text-anchor="middle" fill="white" font-size="40">⏰</text></svg>',
-                            requireInteraction: true,
-                            tag: 'time-calculator'
-                        });
-                    }, timeUntilNotification);
-                    
-                    console.log(`Notifica web programmata per ${notificationTime.toLocaleString()}`);
+                seq.activities.push({ name, durationHours: hours, durationMinutes: minutes });
+                
+                const sequenceElement = document.getElementById(sequenceId);
+                if (sequenceElement) {
+                    this.renderActivities(sequenceElement, sequenceId);
+                    this.updateNotificationControls(sequenceElement, sequenceId);
+                } else {
+                    console.warn(`ATTENZIONE: Elemento sequenza non trovato dopo l'aggiunta dell'attività per l'ID ${sequenceId}.`);
                 }
-            } else if (Notification.permission !== 'denied') {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        scheduleWebNotification(activityName, endTimeStr, notificationTime);
+                
+                this.saveSequences();
+                nameInput.value = ''; hoursInput.value = '0'; minutesInput.value = '0';
+                
+                const resultsDiv = document.getElementById(`${sequenceId}-results`);
+                if (resultsDiv) {
+                    resultsDiv.classList.add('hidden');
+                } else {
+                    console.warn(`ATTENZIONE: Div risultati non trovato per la sequenza ${sequenceId}.`);
+                }
+                this.cancelSequenceNotifications(sequenceId);
+            },
+
+            deleteActivity: function(sequenceId, activityIndex) {
+                const seq = this.sequences.find(s => s.id === sequenceId);
+                if (seq) {
+                    if (activityIndex >= 0 && activityIndex < seq.activities.length) {
+                        seq.activities.splice(activityIndex, 1);
+                        const sequenceElement = document.getElementById(sequenceId);
+                        if (sequenceElement) {
+                            this.renderActivities(sequenceElement, sequenceId);
+                            this.updateNotificationControls(sequenceElement, sequenceId);
+                        } else {
+                            console.warn(`ATTENZIONE: Elemento sequenza non trovato dopo l'eliminazione dell'attività per l'ID ${sequenceId}.`);
+                        }
+                        this.saveSequences();
+                        const resultsDiv = document.getElementById(`${seq.id}-results`);
+                        if (resultsDiv) {
+                            resultsDiv.classList.add('hidden');
+                        } else {
+                            console.warn(`ATTENZIONE: Div risultati non trovato per la sequenza ${seq.id} dopo l'eliminazione dell'attività.`);
+                        }
+                        this.cancelSequenceNotifications(sequenceId);
+                    } else {
+                        console.error(`ERRORE: Indice attività non valido (${activityIndex}) per la sequenza ${sequenceId}.`);
                     }
+                } else {
+                    console.error(`ERRORE: Sequenza con ID ${sequenceId} non trovata per eliminare attività.`);
+                }
+            },
+
+            calculateTimes: function(sequenceId) {
+                const t = this.translations[this.currentLang];
+                const seq = this.sequences.find(s => s.id === sequenceId);
+                if (!seq) { console.error(`ERRORE: Sequenza con ID ${sequenceId} non trovata per il calcolo dei tempi.`); return; }
+                if (seq.activities.length === 0) { this.showMessage(t.modalTitleError, t.modalMessageNoActivities, true); return; }
+                
+                let currentDateTime = new Date(seq.startDate);
+                if (isNaN(currentDateTime.getTime())) { this.showMessage(t.modalTitleError, t.modalMessageInvalidInput, true); return; }
+                
+                let totalDurationMinutes = 0;
+                seq.calculatedResults = [];
+                const sequenceOverallStartTime = new Date(currentDateTime.getTime());
+                
+                seq.activities.forEach(activity => {
+                    const activityStartTime = new Date(currentDateTime.getTime());
+                    currentDateTime.setHours(currentDateTime.getHours() + activity.durationHours);
+                    currentDateTime.setMinutes(currentDateTime.getMinutes() + activity.durationMinutes);
+                    seq.calculatedResults.push({ name: activity.name, durationHours: activity.durationHours, durationMinutes: activity.durationMinutes, startTime: activityStartTime, endTime: new Date(currentDateTime.getTime()) });
+                    totalDurationMinutes += (activity.durationHours * 60) + activity.durationMinutes;
                 });
-            }
-        }
+                
+                const sequenceElement = document.getElementById(sequenceId);
+                if (sequenceElement) {
+                    this.updateResultDisplay(sequenceElement, sequenceId, sequenceOverallStartTime, totalDurationMinutes);
+                } else {
+                    console.warn(`ATTENZIONE: Elemento sequenza non trovato per l'ID ${sequenceId} durante il calcolo dei tempi.`);
+                }
+            },
+            
+            updateResultDisplay: function(sequenceElement, sequenceId, overallStartTime = null, overallDurationMinutes = null) {
+                const t = this.translations[this.currentLang];
+                const seq = this.sequences.find(s => s.id === sequenceId);
+                if (!seq) { console.error(`ERRORE: Sequenza con ID ${sequenceId} non trovata per aggiornare la visualizzazione dei risultati.`); return; }
+                if (!sequenceElement) { console.error(`ERRORE: sequenceElement è null per sequenceId: ${sequenceId}. Impossibile aggiornare la visualizzazione dei risultati.`); return; }
 
-        // Inizializza l'app
-        document.addEventListener('DOMContentLoaded', function() {
-            updateRemoveButtons();
-            
-            // Imposta l'orario corrente come default
-            const now = new Date();
-            const currentTime = now.toTimeString().substring(0, 5);
-            document.getElementById('startTime').value = currentTime;
-            
-            console.log('App inizializzata');
-        });
+                const resultsDiv = sequenceElement.querySelector(`#${sequenceId}-results`);
+                const detailedScheduleDiv = sequenceElement.querySelector(`#${sequenceId}-detailed-schedule`);
 
-        // Inizializza Cordova quando disponibile
-        document.addEventListener('deviceready', function() {
-            console.log('Cordova ready - Notifiche native disponibili');
-            
-            // Richiedi permessi notifiche su Android
-            if (window.cordova && cordova.plugins && cordova.plugins.notification) {
-                cordova.plugins.notification.local.hasPermission(function (granted) {
-                    if (!granted) {
-                        cordova.plugins.notification.local.requestPermission(function (granted) {
-                            console.log('Permessi notifiche:', granted ? 'Concessi' : 'Negati');
+                if (!resultsDiv || !detailedScheduleDiv) {
+                    console.error(`ERRORE: Elementi 'resultsDiv' o 'detailedScheduleDiv' non trovati per la sequenza ${sequenceId}.`);
+                    return;
+                }
+
+                if (seq.calculatedResults.length === 0) { resultsDiv.classList.add('hidden'); return; }
+                
+                const dateOptions = { day: '2-digit', month: '2-digit' }; 
+                const timeOptions = { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' };
+
+                if (overallStartTime === null || overallDurationMinutes === null) {
+                    overallStartTime = new Date(seq.startDate);
+                    overallDurationMinutes = 0;
+                    seq.activities.forEach(activity => { overallDurationMinutes += (activity.durationHours * 60) + activity.durationMinutes; });
+                }
+                const totalHours = Math.floor(overallDurationMinutes / 60);
+                const remainingMinutes = overallDurationMinutes % 60;
+                const finalEndTime = seq.calculatedResults.length > 0 ? new Date(seq.calculatedResults[seq.calculatedResults.length - 1].endTime) : overallStartTime;
+                
+                detailedScheduleDiv.innerHTML = ''; 
+                
+                const resultsHeader = document.createElement('div');
+                resultsHeader.className = 'results-header rounded-lg p-5 mb-4 text-sm'; /* Reverted classes */
+                const overallStartDate = new Date(seq.startDate);
+                
+                const overallStartDateString = overallStartDate.toLocaleDateString(this.currentLang === 'it' ? 'it-IT' : 'en-GB', dateOptions);
+                const overallStartTimeString = overallStartDate.toLocaleTimeString(this.currentLang === 'it' ? 'it-IT' : 'en-US', timeOptions);
+                const finalEndDateString = finalEndTime.toLocaleDateString(this.currentLang === 'it' ? 'it-IT' : 'en-GB', dateOptions);
+                const finalEndTimeString = finalEndTime.toLocaleTimeString(this.currentLang === 'it' ? 'it-IT' : 'en-US', timeOptions);
+
+                resultsHeader.innerHTML = `
+                    <h4 class="font-bold text-xl mb-2">${seq.name}</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-base">
+                        <span class="icon-text-group">
+                            <i class="fas fa-calendar-alt"></i><span>${t.sequenceStarts}: <strong>${overallStartDateString}</strong></span>
+                        </span>
+                        <span class="icon-text-group">
+                            <i class="fas fa-clock"></i><span>${t.startsAt}: <strong>${overallStartTimeString}</strong></span>
+                        </span>
+                        <span class="icon-text-group">
+                            <i class="fas fa-hourglass-half"></i><span>${t.totalTime}: <strong>${totalHours}h ${remainingMinutes}m</strong></span>
+                        </span>
+                        <span class="icon-text-group col-span-full">
+                            <i class="fas fa-flag-checkered"></i><span>${t.allActivitiesEnd}: <strong>${finalEndDateString} ${finalEndTimeString}</strong></span>
+                        </span>
+                    </div>
+                `;
+                detailedScheduleDiv.appendChild(resultsHeader);
+
+                const activitiesGrid = document.createElement('div');
+                activitiesGrid.className = 'activities-grid grid gap-3';
+                seq.calculatedResults.forEach(result => {
+                    const activityCard = document.createElement('div');
+                    activityCard.className = 'detailed-activity-card p-4 rounded-lg flex flex-col gap-2'; /* Reverted classes */
+                    
+                    const activityStartDateString = new Date(result.startTime).toLocaleDateString(this.currentLang === 'it' ? 'it-IT' : 'en-GB', dateOptions);
+                    const activityStartTimeString = new Date(result.startTime).toLocaleTimeString(this.currentLang === 'it' ? 'it-IT' : 'en-US', timeOptions);
+                    const activityEndDateString = new Date(result.endTime).toLocaleDateString(this.currentLang === 'it' ? 'it-IT' : 'en-GB', dateOptions);
+                    const activityEndTimeString = new Date(result.endTime).toLocaleTimeString(this.currentLang === 'it' ? 'it-IT' : 'en-US', timeOptions);
+
+                    activityCard.innerHTML = `
+                        <p class="font-bold text-lg">${result.name}</p>
+                        <div class="border-t border-white/30 my-1"></div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-base"> 
+                            <span class="icon-text-group">
+                                <i class="fas fa-play-circle"></i> ${t.startsAt}: ${activityStartDateString} ${activityStartTimeString}
+                            </span> 
+                            <span class="icon-text-group">
+                                <i class="fas fa-clock"></i> ${t.duration}: ${result.durationHours}h ${result.durationMinutes}m
+                            </span> 
+                            <span class="icon-text-group col-span-full font-semibold">
+                                <i class="fas fa-flag-checkered"></i> ${t.endsAt}: ${activityEndDateString} ${activityEndTimeString}
+                            </span>
+                        </div>
+                    `;
+                    activitiesGrid.appendChild(activityCard);
+                });
+                detailedScheduleDiv.appendChild(activitiesGrid);
+
+                const resultsFooter = document.createElement('div');
+                resultsFooter.className = 'results-footer-summary p-5 rounded-lg text-sm mt-4'; /* Reverted classes */
+                resultsFooter.innerHTML = `
+                    <div class="flex flex-col sm:flex-row justify-center items-center gap-x-6 gap-y-2">
+                        <span class="icon-text-group text-base">
+                            <i class="fas fa-stopwatch"></i> ${t.totalTime}: <strong>${totalHours}h ${remainingMinutes}m</strong>
+                        </span>
+                        <span class="icon-text-group text-base font-semibold">
+                            <i class="fas fa-trophy"></i> ${t.allActivitiesEnd}: <strong>${finalEndDateString} ${finalEndTimeString}</strong>
+                        </span>
+                    </div>
+                `;
+                detailedScheduleDiv.appendChild(resultsFooter);
+
+                resultsDiv.classList.remove('hidden');
+            },
+           
+            setNotifications: function(sequenceId) {
+                const t = this.translations[this.currentLang];
+                const seq = this.sequences.find(s => s.id === sequenceId);
+                if (!seq) { console.error(`ERRORE: Sequenza con ID ${sequenceId} non trovata per impostare le notifiche.`); return; }
+                if (seq.calculatedResults.length === 0) { this.showMessage(t.modalTitleError, t.modalMessageNoActivities, true); return; }
+                
+                if (window.cordova && window.cordova.plugins.notification.local) {
+                    this.cancelSequenceNotifications(sequenceId);
+                    seq.notificationIds = [];
+                    seq.calculatedResults.forEach((result, index) => {
+                        const notificationTime = new Date(result.endTime.getTime() - (5 * 60 * 1000));
+                        if (notificationTime.getTime() > new Date().getTime()) {
+                            const id = parseInt(`${sequenceId.replace('sequence-', '')}${index}1`);
+                            window.cordova.plugins.notification.local.schedule({ id: id, title: `${t.activity}: ${result.name}`, text: `${t.endsAt}: ${result.endTime.toLocaleTimeString(this.currentLang === 'it' ? 'it-IT' : 'en-US', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })}`, trigger: { at: notificationTime }, foreground: true, vibrate: true, sound: true });
+                            seq.notificationIds.push(id);
+                        }
+                    });
+                    this.saveSequences();
+                    this.showMessage(t.modalTitleSuccess, t.notificationsSet);
+                    const sequenceElement = document.getElementById(sequenceId);
+                    if (sequenceElement) {
+                        this.updateNotificationControls(sequenceElement, sequenceId);
+                    } else {
+                        console.warn(`ATTENZIONE: Elemento sequenza non trovato per l'ID ${sequenceId} dopo l'impostazione delle notifiche.`);
+                    }
+                } else { this.showMessage(t.modalTitleError, t.modalMessageNotificationsNotSupported, true); }
+            },
+
+            disableNotifications: function(sequenceId) {
+                const t = this.translations[this.currentLang];
+                if (window.cordova && window.cordova.plugins.notification.local) {
+                    this.cancelSequenceNotifications(sequenceId);
+                    this.showMessage(t.modalTitleSuccess, t.modalMessageNotificationsDisabled);
+                    const sequenceElement = document.getElementById(sequenceId);
+                    if (sequenceElement) {
+                        this.updateNotificationControls(sequenceElement, sequenceId);
+                    } else {
+                        console.warn(`ATTENZIONE: Elemento sequenza non trovato per l'ID ${sequenceId} dopo la disabilitazione delle notifiche.`);
+                    }
+                } else { this.showMessage(t.modalTitleError, t.modalMessageNotificationsNotSupported, true); }
+            },
+
+            cancelSequenceNotifications: function(sequenceId) {
+                const seq = this.sequences.find(s => s.id === sequenceId);
+                if (seq && seq.notificationIds && seq.notificationIds.length > 0) {
+                    if (window.cordova && window.cordova.plugins.notification.local) {
+                        window.cordova.plugins.notification.local.cancel(seq.notificationIds, () => {
+                            seq.notificationIds = []; this.saveSequences();
+                            console.log(`Notifiche cancellate per la sequenza ${sequenceId}.`);
                         });
+                    } else {
+                        console.warn("ATTENZIONE: Funzionalità di notifica Cordova non disponibile per la cancellazione.");
+                        seq.notificationIds = []; // Clear local state even if API is not available
+                        this.saveSequences();
                     }
-                });
-            }
-        }, false);
+                } else {
+                    console.log(`Nessuna notifica da cancellare per la sequenza ${sequenceId}.`);
+                }
+            },
 
-        // Richiedi permessi per le notifiche web (fallback per browser)
-        if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission().then(permission => {
-                console.log('Permessi notifiche web:', permission);
-            });
+            updateNotificationControls: function(sequenceElement, sequenceId) {
+                const t = this.translations[this.currentLang];
+                const seq = this.sequences.find(s => s.id === sequenceId);
+                if (!sequenceElement) {
+                    console.error(`ERRORE: sequenceElement è null per sequenceId: ${sequenceId}. Impossibile aggiornare i controlli delle notifiche.`);
+                    return;
+                }
+                const setNotifBtn = sequenceElement.querySelector('.set-notifications-btn');
+                const disableNotifBtn = sequenceElement.querySelector('.disable-notifications-btn');
+                const notificationStatus = sequenceElement.querySelector(`#${sequenceId}-notification-status`);
+                
+                if (!setNotifBtn || !disableNotifBtn || !notificationStatus) {
+                    console.error(`ERRORE: Uno o più elementi di controllo notifica non trovati per la sequenza ${sequenceId}.`);
+                    return;
+                }
+
+                const hasNotifications = seq && seq.notificationIds && seq.notificationIds.length > 0;
+                setNotifBtn.classList.toggle('hidden', hasNotifications);
+                disableNotifBtn.classList.toggle('hidden', !hasNotifications);
+                notificationStatus.textContent = hasNotifications ? t.notificationsSet : t.noNotifications;
+            }
+        };
+
+        if (!window.cordova) {
+            console.log("Ambiente non Cordova rilevato, inizializzazione diretta dell'app.");
+            app.init();
+        } else {
+            // Se Cordova è presente, l'inizializzazione avverrà su "deviceready"
+            console.log("Ambiente Cordova rilevato, in attesa dell'evento 'deviceready'.");
         }
     </script>
 </body>
