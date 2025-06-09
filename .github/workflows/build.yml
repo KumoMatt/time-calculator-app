@@ -32,11 +32,9 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       with:
-        # Le versioni degli strumenti di build e delle platform-tools sono ora specificate all'interno dell'input 'packages'.
-        # Questo risolve il warning "Unexpected input(s) 'build-tools', 'platform-tools'".
-        packages: |
-          build-tools;34.0.0
-          platform-tools
+        # Ora i pacchetti sono specificati come una singola stringa separata da spazi,
+        # per garantire che sdkmanager li interpreti correttamente.
+        packages: "build-tools;34.0.0 platform-tools"
      
     - name: Install Cordova and dependencies
       run: |
