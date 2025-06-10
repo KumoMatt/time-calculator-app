@@ -453,41 +453,37 @@
         </div>
     </div>
 
+    <!-- CORDOVA SCRIPT IS ESSENTIAL FOR PLUGINS TO WORK -->
+    <script src="cordova.js"></script>
 
     <script>
-        // Cordova is ready
-        document.addEventListener("deviceready", onDeviceReady, false);
-
-        function onDeviceReady() {
-            console.log("Cordova is ready!");
-            
+        // Funzione di inizializzazione principale
+        function main() {
             // On Android 13+ (API 33+), we must request notification permission at runtime.
-            // First, check if the necessary plugins (device and permissions) are available.
-            if (window.device && window.device.platform === "Android" && parseInt(window.device.version) >= 13 && window.cordova && window.cordova.plugins && window.cordova.plugins.permissions) {
+            if (window.device && window.device.platform === "Android" && parseInt(window.device.version) >= 13 && window.cordova.plugins.permissions) {
                 const permissions = cordova.plugins.permissions;
-                // Request the POST_NOTIFICATIONS permission.
                 permissions.requestPermission(permissions.POST_NOTIFICATIONS, 
-                    function(status) { // Success callback
+                    function(status) {
                         if (status.hasPermission) {
                             console.log("Permesso per le notifiche concesso.");
                         } else {
                             console.warn("Permesso per le notifiche negato dall'utente.");
+                            // Opzionale: informare l'utente che le notifiche non funzioneranno
                         }
-                        // Initialize the app after handling the permission request
-                        app.init();
+                        app.init(); // Inizializza l'app dopo la richiesta
                     }, 
-                    function(error) { // Error callback
+                    function(error) {
                         console.error("Errore nella richiesta del permesso per le notifiche: ", error);
-                        // Initialize the app anyway, notifications will just fail if permission is missing
-                        app.init();
+                        app.init(); // Inizializza comunque l'app
                     }
                 );
             } else {
-                // For other platforms or older Android versions, just initialize the app directly.
-                app.init();
+                app.init(); // Inizializza direttamente per altre piattaforme
             }
         }
 
+        // Event listener per 'deviceready'
+        document.addEventListener("deviceready", main, false);
 
         const app = {
             // All translations
@@ -1368,11 +1364,13 @@
             }
         };
 
+        // Gestione dell'inizializzazione per browser e Cordova
         if (!window.cordova) {
             console.log("Ambiente non Cordova rilevato, inizializzazione diretta dell'app.");
-            app.init();
+            // In un ambiente browser, inizializziamo subito per i test.
+            document.addEventListener('DOMContentLoaded', app.init.bind(app));
         } else {
-            // Se Cordova è presente, l'inizializzazione avverrà su "deviceready"
+            // Se Cordova è presente, l'inizializzazione avverrà gestita dalla funzione main su 'deviceready'
             console.log("Ambiente Cordova rilevato, in attesa dell'evento 'deviceready'.");
         }
     </script>
