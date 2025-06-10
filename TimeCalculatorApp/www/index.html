@@ -460,9 +460,34 @@
 
         function onDeviceReady() {
             console.log("Cordova is ready!");
-            // Initialize the app after device is ready
-            app.init();
+            
+            // On Android 13+ (API 33+), we must request notification permission at runtime.
+            // First, check if the necessary plugins (device and permissions) are available.
+            if (window.device && window.device.platform === "Android" && parseInt(window.device.version) >= 13 && window.cordova && window.cordova.plugins && window.cordova.plugins.permissions) {
+                const permissions = cordova.plugins.permissions;
+                // Request the POST_NOTIFICATIONS permission.
+                permissions.requestPermission(permissions.POST_NOTIFICATIONS, 
+                    function(status) { // Success callback
+                        if (status.hasPermission) {
+                            console.log("Permesso per le notifiche concesso.");
+                        } else {
+                            console.warn("Permesso per le notifiche negato dall'utente.");
+                        }
+                        // Initialize the app after handling the permission request
+                        app.init();
+                    }, 
+                    function(error) { // Error callback
+                        console.error("Errore nella richiesta del permesso per le notifiche: ", error);
+                        // Initialize the app anyway, notifications will just fail if permission is missing
+                        app.init();
+                    }
+                );
+            } else {
+                // For other platforms or older Android versions, just initialize the app directly.
+                app.init();
+            }
         }
+
 
         const app = {
             // All translations
@@ -1251,7 +1276,7 @@
                             <i class="fas fa-stopwatch"></i> ${t.totalTime}: <strong>${totalHours}h ${remainingMinutes}m</strong>
                         </span>
                         <span class="icon-text-group text-base font-semibold">
-                            <i class="fas fa-trophy"></i> ${t.allActivitiesEnd}: <strong>${finalEndDateString} ${finalEndTimeString}</strong>
+                            <i class="fas fa-trophy"></i> ${t.allActivitiesEnd}: <strong>${finalEndTime.toLocaleTimeString(this.currentLang === 'it' ? 'it-IT' : 'en-US', timeOptions)}</strong>
                         </span>
                     </div>
                 `;
