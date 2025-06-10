@@ -32,6 +32,8 @@
     <plugin name="cordova-plugin-local-notification" spec="^1.1.0" />
     <plugin name="cordova-plugin-whitelist" spec="^1.3.5" />
     <plugin name="cordova-plugin-device" spec="^2.1.0" />
+    <!-- NUOVO: Plugin per la gestione dei permessi Android -->
+    <plugin name="cordova-plugin-android-permissions" spec="^1.1.5" />
 
     <!-- Permessi Android -->
     <platform name="android">
