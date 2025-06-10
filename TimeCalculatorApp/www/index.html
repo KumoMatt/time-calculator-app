@@ -3,11 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- **CORREZIONE**: Aggiunto Content-Security-Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https: 'unsafe-inline' 'unsafe-eval';">
+    
     <title>Time Manager</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- CORDOVA SCRIPT IS ESSENTIAL FOR PLUGINS TO WORK -->
+    <script src="cordova.js"></script>
+
     <style>
         /* === DEFINIZIONE VARIABILI CSS PER TEMI E PALETTE DINAMICI === */
         :root {
@@ -453,14 +461,11 @@
         </div>
     </div>
 
-    <!-- CORDOVA SCRIPT IS ESSENTIAL FOR PLUGINS TO WORK -->
-    <script src="cordova.js"></script>
-
     <script>
         // Funzione di inizializzazione principale
         function main() {
             // On Android 13+ (API 33+), we must request notification permission at runtime.
-            if (window.device && window.device.platform === "Android" && parseInt(window.device.version) >= 13 && window.cordova.plugins.permissions) {
+            if (window.cordova && window.cordova.plugins && window.device && window.device.platform === "Android" && parseInt(window.device.version) >= 13 && window.cordova.plugins.permissions) {
                 const permissions = cordova.plugins.permissions;
                 permissions.requestPermission(permissions.POST_NOTIFICATIONS, 
                     function(status) {
@@ -468,22 +473,19 @@
                             console.log("Permesso per le notifiche concesso.");
                         } else {
                             console.warn("Permesso per le notifiche negato dall'utente.");
-                            // Opzionale: informare l'utente che le notifiche non funzioneranno
+                            // Optional: Inform the user that notifications will not work
                         }
-                        app.init(); // Inizializza l'app dopo la richiesta
+                        app.init(); // Initialize the app after the request
                     }, 
                     function(error) {
                         console.error("Errore nella richiesta del permesso per le notifiche: ", error);
-                        app.init(); // Inizializza comunque l'app
+                        app.init(); // Still initialize the app
                     }
                 );
             } else {
-                app.init(); // Inizializza direttamente per altre piattaforme
+                app.init(); // Initialize directly for other platforms
             }
         }
-
-        // Event listener per 'deviceready'
-        document.addEventListener("deviceready", main, false);
 
         const app = {
             // All translations
@@ -1367,11 +1369,12 @@
         // Gestione dell'inizializzazione per browser e Cordova
         if (!window.cordova) {
             console.log("Ambiente non Cordova rilevato, inizializzazione diretta dell'app.");
-            // In un ambiente browser, inizializziamo subito per i test.
+            // In un ambiente browser, inizializziamo quando il DOM è pronto.
             document.addEventListener('DOMContentLoaded', app.init.bind(app));
         } else {
             // Se Cordova è presente, l'inizializzazione avverrà gestita dalla funzione main su 'deviceready'
             console.log("Ambiente Cordova rilevato, in attesa dell'evento 'deviceready'.");
+            document.addEventListener("deviceready", main, false);
         }
     </script>
 </body>
